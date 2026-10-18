@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+package-lock.json.bak
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and sensitive secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+
+# Runtime logs
+logs/
+*.log
+
+# OS & IDE temporary files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
