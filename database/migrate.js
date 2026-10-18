@@ -35,25 +35,52 @@ function generateAmortizationSchedule(principal, annualRate, months) {
 async function migrateAndSeed() {
   console.log('🚀 [Migration] Connecting to MySQL server at', process.env.DB_HOST || 'localhost');
   
-  const rootConn = await mysql.createConnection({
+  const targetDb = process.env.DB_NAME || 'obsidian_trust_bank_db';
+  const isRemoteHost = process.env.DB_SSL === 'true' || 
+    (process.env.DB_HOST && !['localhost', '127.0.0.1', ''].includes(process.env.DB_HOST.trim()));
+
+  if (!isRemoteHost) {
+    try {
+      const initConn = await mysql.createConnection({
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT, 10) || 3306,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || 'celestial'
+      });
+      await initConn.query(`CREATE DATABASE IF NOT EXISTS \`${targetDb}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+      await initConn.end();
+    } catch (e) {
+      console.log('ℹ️ [Migration] Notice on DB creation check:', e.message);
+    }
+  }
+
+  const connConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'celestial',
+    database: targetDb,
     multipleStatements: true
-  });
+  };
+
+  if (isRemoteHost) {
+    connConfig.ssl = { rejectUnauthorized: false };
+  }
+
+  const rootConn = await mysql.createConnection(connConfig);
 
   try {
     const schemaPath = path.join(__dirname, 'schema.sql');
     console.log('📄 [Migration] Reading schema DDL from:', schemaPath);
-    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    let schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
-    console.log('⚡ [Migration] Executing schema DDL...');
+    // Strip hardcoded CREATE DATABASE / USE to support any cloud database name (e.g., Aiven defaultdb)
+    schemaSql = schemaSql.replace(/CREATE DATABASE IF NOT EXISTS[^;]+;/gi, '');
+    schemaSql = schemaSql.replace(/USE `?[^;`]+`?;/gi, '');
+
+    console.log('⚡ [Migration] Executing schema DDL in database:', targetDb);
     await rootConn.query(schemaSql);
-    console.log('✅ [Migration] Schema and tables created successfully in obsidian_trust_bank_db!');
-
-    // Switch to database
-    await rootConn.changeUser({ database: process.env.DB_NAME || 'obsidian_trust_bank_db' });
+    console.log('✅ [Migration] Schema and tables created successfully in', targetDb);
 
     console.log('🌱 [Seed] Generating password & PIN secure hashes...');
     const demoPasswordHash = await bcrypt.hash('Password123!', 10);

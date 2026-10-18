@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
-const pool = mysql.createPool({
+const poolConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT, 10) || 3306,
   user: process.env.DB_USER || 'root',
@@ -12,7 +12,21 @@ const pool = mysql.createPool({
   connectionLimit: 15,
   queueLimit: 0,
   decimalNumbers: false // Ensure decimals are returned as strings to maintain precision
-});
+};
+
+// Enable SSL for remote cloud databases like Aiven or Railway
+const isRemoteHost = process.env.DB_SSL === 'true' || 
+  (process.env.DB_HOST && !['localhost', '127.0.0.1', ''].includes(process.env.DB_HOST.trim()));
+
+if (isRemoteHost) {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+if (process.env.DATABASE_URL) {
+  poolConfig.uri = process.env.DATABASE_URL;
+}
+
+const pool = mysql.createPool(poolConfig);
 
 // Self-test connection pool
 pool.getConnection()

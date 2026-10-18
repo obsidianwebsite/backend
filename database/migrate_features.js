@@ -11,14 +11,24 @@ const { v4: uuidv4 } = require('uuid');
 async function runFeatureMigration() {
   console.log('🚀 [Migration] Upgrading database with Explanatory Feature Book modules...');
 
-  const conn = await mysql.createConnection({
+  const targetDb = process.env.DB_NAME || 'obsidian_trust_bank_db';
+  const isRemoteHost = process.env.DB_SSL === 'true' || 
+    (process.env.DB_HOST && !['localhost', '127.0.0.1', ''].includes(process.env.DB_HOST.trim()));
+
+  const connConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'celestial',
-    database: process.env.DB_NAME || 'obsidian_trust_bank_db',
+    database: targetDb,
     multipleStatements: true
-  });
+  };
+
+  if (isRemoteHost) {
+    connConfig.ssl = { rejectUnauthorized: false };
+  }
+
+  const conn = await mysql.createConnection(connConfig);
 
   try {
     // 1. Add columns to `users` if they don't exist
