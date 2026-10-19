@@ -28,9 +28,7 @@ router.get('/health', (req, res) => {
   res.status(200).json({ status: 'HEALTHY', timestamp: new Date().toISOString() });
 });
 
-// -----------------------------------------------------------------------------
-// 1. AUTHENTICATION & ONBOARDING ROUTES
-// -----------------------------------------------------------------------------
+router.post('/auth/login', authController.loginStage1);
 router.post('/auth/login-stage1', authController.loginStage1);
 router.post('/auth/verify-pin-stage2', verifyPreAuth, authController.verifyPinStage2);
 router.post('/auth/register', authController.register);
