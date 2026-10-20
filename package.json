@@ -1,7 +1,7 @@
 {
-  "name": "vaultatlantic-backend",
+  "name": "vaultprovenance-backend",
   "version": "1.0.0",
-  "description": "Enterprise Core Banking API Server for VaultAtlantic",
+  "description": "Enterprise Core Banking API Server for VaultProvenance",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

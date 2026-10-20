@@ -154,7 +154,7 @@ async function verifyPinStage2(req, res) {
     return res.status(200).json({
       success: true,
       status: 'SUCCESS',
-      message: 'Authentication successful. Welcome to VaultAtlantic E-Banking.',
+      message: 'Authentication successful. Welcome to VaultProvenance E-Banking.',
       token,
       user: {
         id: user.id,
@@ -304,7 +304,7 @@ async function register(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status
-      ) VALUES (?, ?, ?, 'CREDIT', 'DEPOSIT', ?, 0.0000, ?, 'VaultAtlantic Treasury', 'VaultAtlantic Bank Plc', 'INTERNAL-TREASURY', 'Welcome Account Opening Incentive Credit', 'COMPLETED')`,
+      ) VALUES (?, ?, ?, 'CREDIT', 'DEPOSIT', ?, 0.0000, ?, 'VaultProvenance Treasury', 'VaultProvenance Bank Plc', 'INTERNAL-TREASURY', 'Welcome Account Opening Incentive Credit', 'COMPLETED')`,
       [
         uuidv4(),
         accountId,
@@ -346,7 +346,7 @@ async function register(req, res) {
     return res.status(201).json({
       success: true,
       status: 'SUCCESS',
-      message: 'Your VaultAtlantic account has been successfully provisioned.',
+      message: 'Your VaultProvenance account has been successfully provisioned.',
       accountNumber,
       currency: currency || 'USD',
       initialBalance: initialWelcomeDeposit

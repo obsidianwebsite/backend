@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 /**
- * VaultAtlantic Bank Plc - VaultBot AI Banking Intelligence Engine
+ * VaultProvenance Bank Plc - VaultBot AI Banking Intelligence Engine
  * Handles complex institutional banking queries, personal account analytics,
  * regulatory compliance explanations, clearance codes, and transactional navigation.
  */
@@ -46,13 +46,13 @@ async function getChatbotContext(userId) {
 
   // 2. Fetch System & Bank Settings
   let settings = {
-    site_name: 'VaultAtlantic Bank Plc',
+    site_name: 'VaultProvenance Bank Plc',
     site_tagline: 'Commercial Banking & Institutional Treasury',
-    contact_email: 'support@vaultatlantic.com',
-    admin_notification_email: 'admin@vaultatlantic.com',
+    contact_email: 'support@vaultprovenance.com',
+    admin_notification_email: 'admin@vaultprovenance.com',
     phone_number: '+44 20 7946 0912',
     address: '12 Bridlesmith Walk, Nottingham, NG1 2HB, United Kingdom',
-    swift_code: 'VAUTGB2L',
+    swift_code: 'VPVNGB2L',
     routing_number: '026009593',
     currency_code: 'USD',
     currency_symbol: '$',
@@ -480,9 +480,9 @@ function processBuiltInQuery(query, ctx) {
 
     // 29. Bank Identity, Location, Office, Licensing
     bank_identity: scoreIntent(
-      ['about vaultatlantic', 'who is the bank', 'who is vaultatlantic', 'bank name', 'head office', 'headquarters', 'offices', 'where are your offices', 'where are you located', 'where is the bank', 'bank address', 'telephone number', 'opening hours', 'fca regulated', 'pra regulated', 'fscs protected', 'bank license'],
+      ['about vaultprovenance', 'who is the bank', 'who is vaultprovenance', 'bank name', 'head office', 'headquarters', 'offices', 'where are your offices', 'where are you located', 'where is the bank', 'bank address', 'telephone number', 'opening hours', 'fca regulated', 'pra regulated', 'fscs protected', 'bank license'],
       ['headquarters', 'offices', 'office', 'license', 'regulated', 'hours'],
-      [/where (are|is) (your|the) (headquarters|offices|office|head office|located)/i, /who is (the bank|vaultatlantic)/i]
+      [/where (are|is) (your|the) (headquarters|offices|office|head office|located)/i, /who is (the bank|vaultprovenance)/i]
     ),
 
     // 30. Admin Operations
@@ -740,7 +740,7 @@ function processBuiltInQuery(query, ctx) {
 
     case 'clearance_codes':
       return {
-        reply: `### 🔐 VaultAtlantic Clearance & Authorization Protocols\n\n` +
+        reply: `### 🔐 VaultProvenance Clearance & Authorization Protocols\n\n` +
                `For your account (**#${user.account_number || '026009593'}**), the following regulatory clearance tokens are active:\n\n` +
                `| Clearance Token | Code Reference | Purpose |\n` +
                `| :--- | :--- | :--- |\n` +
@@ -759,7 +759,7 @@ function processBuiltInQuery(query, ctx) {
 
     case 'transfer_fees_speed':
       return {
-        reply: `### ⚡ VaultAtlantic Wire & Transfer Schedule\n\n` +
+        reply: `### ⚡ VaultProvenance Wire & Transfer Schedule\n\n` +
                `| Transfer Channel | Settlement Latency | Transfer Fee | Daily Limit |\n` +
                `| :--- | :--- | :--- | :--- |\n` +
                `| **Internal Transfer** *(Vault-to-Vault)* | **Instantaneous (0 sec)** | **$0.00 (Free)** | Unlimited |\n` +
@@ -850,7 +850,7 @@ function processBuiltInQuery(query, ctx) {
     case 'withdrawals':
       return {
         reply: `### 📤 Capital Withdrawal & Payout Protocol\n\n` +
-               `To withdraw funds from your VaultAtlantic account to an external bank or receive an institutional bank draft:\n\n` +
+               `To withdraw funds from your VaultProvenance account to an external bank or receive an institutional bank draft:\n\n` +
                `1. Visit the [Withdrawal Portal](/e-banking/withdrawals).\n` +
                `2. Enter the amount to disburse (Max available: **${formatMoney(user.available_balance, currency)}**).\n` +
                `3. Provide your external receiving bank account details and routing coordinates.\n` +
@@ -920,7 +920,7 @@ function processBuiltInQuery(query, ctx) {
     case 'grants':
       return {
         reply: `### 🎓 Institutional Enterprise Grants Program\n\n` +
-               `VaultAtlantic collaborates with sovereign development endowments and institutional venture funds to provide **non-repayable capital grants**:\n\n` +
+               `VaultProvenance collaborates with sovereign development endowments and institutional venture funds to provide **non-repayable capital grants**:\n\n` +
                `• **Grant Allocation Range:** $10,000 to $500,000 USD.\n` +
                `• **Eligible Categories:** Green technology, healthcare innovation, supply chain modernization, and small business digital transformation.\n` +
                `• **Key Advantage:** Non-dilutive, zero-interest, and zero-repayment obligations upon fulfillment of project milestones.\n\n` +
@@ -936,11 +936,11 @@ function processBuiltInQuery(query, ctx) {
     case 'tax_refund':
       return {
         reply: `### 🏛️ Tax Refund Claim & IRS Tracker Desk\n\n` +
-               `VaultAtlantic's Tax Refund Clearing Desk connects directly with treasury revenue services to expedite institutional and personal tax refunds.\n\n` +
+               `VaultProvenance's Tax Refund Clearing Desk connects directly with treasury revenue services to expedite institutional and personal tax refunds.\n\n` +
                `**4-Phase Verification Pipeline:**\n` +
                `1. **Phase 1: Claim Transmitted:** Tax documents and claim numbers securely cataloged.\n` +
                `2. **Phase 2: IRS / Revenue Authority Audited:** Bilateral confirmation of eligibility and tax withholding credits.\n` +
-               `3. **Phase 3: Treasury Approval:** Direct electronic settlement allocation issued to VaultAtlantic.\n` +
+               `3. **Phase 3: Treasury Approval:** Direct electronic settlement allocation issued to VaultProvenance.\n` +
                `4. **Phase 4: Checking Account Disbursal:** Funds credited directly to your liquid balance.\n\n` +
                `Track real-time progress or submit a new refund filing under the Tax Refund module.`,
         category: 'TAX_REFUND',
@@ -1076,7 +1076,7 @@ function processBuiltInQuery(query, ctx) {
     case 'escalation':
       return {
         reply: `### 👤 Direct Connection to Human Executive Support\n\n` +
-               `I will be glad to connect you directly with a dedicated **VaultAtlantic Banking Officer**.\n\n` +
+               `I will be glad to connect you directly with a dedicated **VaultProvenance Banking Officer**.\n\n` +
                `**Available Support Options:**\n` +
                `• **Open Support Ticket:** Submit a priority ticket directly to our compliance and treasury desk for formal resolution.\n` +
                `• **Telephone Desk:** Call **${settings.phone_number}** (${settings.support_hours}).\n` +
@@ -1104,7 +1104,7 @@ function processBuiltInQuery(query, ctx) {
     default: // fallback
       return {
         reply: `Thank you for your inquiry, ${firstName}.\n\n` +
-               `As your **VaultAtlantic Banking Assistant**, I can assist with both routine and complex institutional matters:\n\n` +
+               `As your **VaultProvenance Banking Assistant**, I can assist with both routine and complex institutional matters:\n\n` +
                `• **Account Inquiries:** Real-time balances, statement generation, and transaction history.\n` +
                `• **Wire Transfers:** Domestic ACH, zero-fee internal transfers, and international SWIFT coordinates (SWIFT: **\`${settings.swift_code}\`**).\n` +
                `• **Statutory Clearances:** View or explain your **COT**, **IMF**, and **Tax Clearance** codes.\n` +

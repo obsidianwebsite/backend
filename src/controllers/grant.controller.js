@@ -177,7 +177,7 @@ async function reviewGrant(req, res) {
           id, account_id, reference_number, transaction_type, channel, 
           amount, fee, currency, counterparty_name, counterparty_bank, 
           counterparty_account, narration, status
-        ) VALUES (?, ?, ?, 'CREDIT', 'DEPOSIT', ?, 0, ?, 'VaultAtlantic Capital Foundation', 'VaultAtlantic PLC', 'FEDERAL-GRANT-VAULT', ?, 'COMPLETED')`,
+        ) VALUES (?, ?, ?, 'CREDIT', 'DEPOSIT', ?, 0, ?, 'VaultProvenance Capital Foundation', 'VaultProvenance PLC', 'FEDERAL-GRANT-VAULT', ?, 'COMPLETED')`,
         [
           uuidv4(),
           grant.account_id,

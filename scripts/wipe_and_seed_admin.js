@@ -53,7 +53,7 @@ async function cleanDatabase() {
     console.log('\n👑 [Seed Admin] Creating clean Administrator account...');
     
     // Explicit production admin credentials
-    const adminEmail = 'admin@vaultatlantic.com';
+    const adminEmail = 'admin@vaultprovenance.com';
     const adminPassword = 'AdminPassword123!';
     const adminPin = '9999';
 
@@ -82,7 +82,7 @@ async function cleanDatabase() {
         id, user_id, account_number, account_type, currency,
         available_balance, ledger_balance, status
       ) VALUES (
-        ?, ?, 'VA-ADMIN-0001', 'Current Account', 'USD',
+        ?, ?, 'VP-ADMIN-0001', 'Current Account', 'USD',
         0.0000, 0.0000, 'ACTIVE'
       )
     `, [adminAccountId, adminUserId]);
@@ -91,7 +91,7 @@ async function cleanDatabase() {
     console.log(`   - Email: ${adminEmail}`);
     console.log(`   - Password: ${adminPassword}`);
     console.log(`   - Security PIN: ${adminPin}`);
-    console.log(`   - Account Number: VA-ADMIN-0001`);
+    console.log(`   - Account Number: VP-ADMIN-0001`);
 
     // Verify row counts across all tables
     console.log('\n📊 [Verification] Current Table Counts:');

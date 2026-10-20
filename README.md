@@ -1,6 +1,6 @@
-# VaultAtlantic Core Banking API Server
+# VaultProvenance Core Banking API Server
 
-Enterprise-grade core banking backend REST API powering the **VaultAtlantic** financial platform. Built with Node.js, Express, MySQL 8, and secure multi-tier JWT authentication.
+Enterprise-grade core banking backend REST API powering the **VaultProvenance** financial platform. Built with Node.js, Express, MySQL 8, and secure multi-tier JWT authentication.
 
 ---
 
@@ -58,7 +58,7 @@ backend/
 
 ```bash
 git clone <repository-url>
-cd vaultatlantic-backend
+cd vaultprovenance-backend
 npm install
 ```
 
@@ -93,8 +93,8 @@ FRONTEND_URL=http://localhost:4200
 
 # Resend Email (Optional - runs in fallback mode if blank)
 RESEND_API_KEY=
-RESEND_FROM_EMAIL=VaultAtlantic Bank <onboarding@resend.dev>
-ADMIN_NOTIFICATION_EMAIL=admin@vaultatlantic.com
+RESEND_FROM_EMAIL=VaultProvenance Bank <onboarding@resend.dev>
+ADMIN_NOTIFICATION_EMAIL=admin@vaultprovenance.com
 ```
 
 ### 3. Initialize Database & Run Migrations

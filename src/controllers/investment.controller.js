@@ -110,14 +110,14 @@ async function subscribePlan(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status
-      ) VALUES (?, ?, ?, 'DEBIT', 'WALLET_EXCHANGE', ?, 0, ?, ?, 'VaultAtlantic Prime Vault', 'VA-INV-FACILITY', ?, 'COMPLETED')`,
+      ) VALUES (?, ?, ?, 'DEBIT', 'WALLET_EXCHANGE', ?, 0, ?, ?, 'VaultProvenance Prime Vault', 'VA-INV-FACILITY', ?, 'COMPLETED')`,
       [
         uuidv4(),
         accountId,
         refNum,
         investAmount,
         accRows[0].currency,
-        `VaultAtlantic Capital: ${plan.name}`,
+        `VaultProvenance Capital: ${plan.name}`,
         `Investment Allocation into ${plan.name} (${plan.duration_days} days @ ${plan.roi_percent}% ROI)`
       ]
     );

@@ -135,7 +135,7 @@ async function approveDeposit(req, res) {
         depositAmount,
         dep.currency,
         dep.payer_name || 'Treasury Direct Clearing',
-        dep.payer_bank || 'VaultAtlantic Inward Gateway',
+        dep.payer_bank || 'VaultProvenance Inward Gateway',
         dep.check_number || 'TR-CLEAR-01',
         `Approved ${dep.method.replace('_', ' ')} deposit. ${adminRemarks || ''}`.trim()
       ]
@@ -312,7 +312,7 @@ async function approveLoan(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status, post_date
-      ) VALUES (?, ?, ?, 'CREDIT', 'LOAN_DISBURSEMENT', ?, 0.0000, ?, 'VaultAtlantic Credit Committee', 'VaultAtlantic Central Facility', ?, ?, 'COMPLETED', NOW())`,
+      ) VALUES (?, ?, ?, 'CREDIT', 'LOAN_DISBURSEMENT', ?, 0.0000, ?, 'VaultProvenance Credit Committee', 'VaultProvenance Central Facility', ?, ?, 'COMPLETED', NOW())`,
       [
         uuidv4(),
         loan.account_id,
@@ -504,7 +504,7 @@ async function adjustBalance(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status, post_date
-      ) VALUES (?, ?, ?, ?, 'DEPOSIT', ?, 0.0000, ?, 'Administrative Treasury Adjustment', 'VaultAtlantic Operations Desk', 'ADJUST-00', ?, 'COMPLETED', NOW())`,
+      ) VALUES (?, ?, ?, ?, 'DEPOSIT', ?, 0.0000, ?, 'Administrative Treasury Adjustment', 'VaultProvenance Operations Desk', 'ADJUST-00', ?, 'COMPLETED', NOW())`,
       [
         uuidv4(),
         accountId,
@@ -710,7 +710,7 @@ async function sendCustomEmail(req, res) {
       }
     }
 
-    const officerName = senderOfficerName || adminUser.fullName || 'VaultAtlantic Executive Compliance Directorate';
+    const officerName = senderOfficerName || adminUser.fullName || 'VaultProvenance Executive Compliance Directorate';
 
     const dispatchResult = await emailService.sendAdminCustomEmailToUser({
       toUserEmail: recipientEmail.trim(),
@@ -735,7 +735,7 @@ async function sendCustomEmail(req, res) {
           adminUser.id,
           'ADMIN_CUSTOM_EMAIL_DISPATCHED',
           req.ip || '127.0.0.1',
-          req.headers['user-agent'] || 'VaultAtlantic-Admin',
+          req.headers['user-agent'] || 'VaultProvenance-Admin',
           JSON.stringify({
             recipientEmail: recipientEmail.trim(),
             subject: subject.trim(),

@@ -172,7 +172,7 @@ async function convertCurrency(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status, post_date
-      ) VALUES (?, ?, ?, 'DEBIT', 'WALLET_EXCHANGE', ?, 0.0000, ?, ?, 'VaultAtlantic Multi-Currency FX Engine', 'FX-DESK', ?, 'COMPLETED', NOW())`,
+      ) VALUES (?, ?, ?, 'DEBIT', 'WALLET_EXCHANGE', ?, 0.0000, ?, ?, 'VaultProvenance Multi-Currency FX Engine', 'FX-DESK', ?, 'COMPLETED', NOW())`,
       [
         uuidv4(),
         accountId,
