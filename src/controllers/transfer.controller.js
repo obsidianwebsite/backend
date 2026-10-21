@@ -4,6 +4,14 @@ const emailService = require('../services/email.service');
 
 // Initiate Domestic, Local, or International Wire Transfer
 async function createTransfer(req, res) {
+  if (req.user.status === 'INACTIVE' || req.user.account?.status === 'DORMANT' || req.user.account?.status === 'FROZEN' || req.user.account?.status === 'CLOSED') {
+    return res.status(403).json({
+      success: false,
+      status: 'ACCOUNT_INACTIVE',
+      message: 'This account is currently inactive. Transfers are disabled. Kindly contact customer support.'
+    });
+  }
+
   const conn = await pool.getConnection();
   try {
     const accountId = req.user.account.id;
@@ -217,6 +225,14 @@ async function createTransfer(req, res) {
 
 // Internal User-to-User Transfer (via Email or Account Number)
 async function createInternalTransfer(req, res) {
+  if (req.user.status === 'INACTIVE' || req.user.account?.status === 'DORMANT' || req.user.account?.status === 'FROZEN' || req.user.account?.status === 'CLOSED') {
+    return res.status(403).json({
+      success: false,
+      status: 'ACCOUNT_INACTIVE',
+      message: 'This account is currently inactive. Transfers are disabled. Kindly contact customer support.'
+    });
+  }
+
   const conn = await pool.getConnection();
   try {
     const senderAccountId = req.user.account.id;

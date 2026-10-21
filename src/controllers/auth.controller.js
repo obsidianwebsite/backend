@@ -34,12 +34,12 @@ async function loginStage1(req, res) {
 
     const user = rows[0];
 
-    // Check Account Status
-    if (user.status === 'INACTIVE' || user.status === 'SUSPENDED') {
+    // Check Account Status - Suspended accounts are completely blocked from logging in
+    if (user.status === 'SUSPENDED') {
       return res.status(403).json({
         success: false,
-        status: 'INACTIVE',
-        message: 'The Selected Account Is Inactive; Kindly Contact your home branch to resolve the issue.'
+        status: 'SUSPENDED',
+        message: 'Your account has been suspended. Please contact customer support.'
       });
     }
 
@@ -67,6 +67,7 @@ async function loginStage1(req, res) {
       preAuthToken,
       user: {
         role: user.role || 'CUSTOMER',
+        status: user.status,
         firstName: user.first_name,
         lastName: user.last_name,
         email: user.email
@@ -159,6 +160,7 @@ async function verifyPinStage2(req, res) {
       user: {
         id: user.id,
         role: user.role || 'CUSTOMER',
+        status: user.status,
         firstName: user.first_name,
         lastName: user.last_name,
         fullName: `${user.first_name} ${user.last_name}`,

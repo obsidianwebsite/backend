@@ -3,6 +3,14 @@ const pool = require('../config/db');
 
 // Customer: Submit a withdrawal request (Bank Wire or ACH)
 async function createWithdrawal(req, res) {
+  if (req.user.status === 'INACTIVE' || req.user.account?.status === 'DORMANT' || req.user.account?.status === 'FROZEN' || req.user.account?.status === 'CLOSED') {
+    return res.status(403).json({
+      success: false,
+      status: 'ACCOUNT_INACTIVE',
+      message: 'This account is currently inactive. Withdrawals are disabled. Kindly contact customer support.'
+    });
+  }
+
   const conn = await pool.getConnection();
   try {
     const accountId = req.user.account.id;

@@ -4,6 +4,14 @@ const pool = require('../config/db');
 // Customer submits a deposit simulation (held in PENDING_APPROVAL)
 async function createDeposit(req, res) {
   try {
+    if (req.user.status === 'INACTIVE' || req.user.account?.status === 'DORMANT' || req.user.account?.status === 'FROZEN' || req.user.account?.status === 'CLOSED') {
+      return res.status(403).json({
+        success: false,
+        status: 'ACCOUNT_INACTIVE',
+        message: 'This account is currently inactive. Deposits are disabled. Kindly contact customer support.'
+      });
+    }
+
     const accountId = req.user.account.id;
     const {
       amount,

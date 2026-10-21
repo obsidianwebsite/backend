@@ -46,17 +46,18 @@ async function verifyAuth(req, res, next) {
 
     const user = users[0];
 
-    if (user.status !== 'ACTIVE') {
+    if (user.status === 'SUSPENDED') {
       return res.status(403).json({
         success: false,
-        status: 'INACTIVE',
-        message: 'Account is inactive. Kindly contact your home branch to resolve the issue.'
+        status: 'SUSPENDED',
+        message: 'Your account has been suspended. Please contact customer support.'
       });
     }
 
     req.user = {
       id: user.id,
       role: user.role || 'CUSTOMER',
+      status: user.status,
       impersonated: !!decoded.impersonated,
       adminId: decoded.adminId || null,
       firstName: user.first_name,
@@ -130,11 +131,11 @@ async function verifyPreAuth(req, res, next) {
       });
     }
 
-    if (users[0].status !== 'ACTIVE') {
+    if (users[0].status === 'SUSPENDED') {
       return res.status(403).json({
         success: false,
-        status: 'INACTIVE',
-        message: 'Account is inactive. Kindly contact your home branch.'
+        status: 'SUSPENDED',
+        message: 'Your account has been suspended. Please contact customer support.'
       });
     }
 
@@ -148,6 +149,40 @@ async function verifyPreAuth(req, res, next) {
       message: 'Authentication session expired. Please enter your email and password again.'
     });
   }
+}
+
+// Transaction Guard: Prevent INACTIVE, DORMANT, or FROZEN accounts from executing financial transactions
+function requireActiveAccount(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      status: 'UNAUTHORIZED',
+      message: 'Access denied. Valid Bearer authorization token is required.'
+    });
+  }
+
+  const isInactive = req.user.status === 'INACTIVE' || 
+                     req.user.account?.status === 'DORMANT' || 
+                     req.user.account?.status === 'FROZEN' || 
+                     req.user.account?.status === 'CLOSED';
+
+  if (isInactive) {
+    return res.status(403).json({
+      success: false,
+      status: 'ACCOUNT_INACTIVE',
+      message: 'This account is currently inactive. Deposits, transfers, and withdrawals are disabled. Kindly contact customer support.'
+    });
+  }
+
+  if (req.user.status === 'SUSPENDED') {
+    return res.status(403).json({
+      success: false,
+      status: 'ACCOUNT_SUSPENDED',
+      message: 'This account is suspended. All transactional operations are restricted.'
+    });
+  }
+
+  next();
 }
 
 // Master Admin Authorization Guard
@@ -165,6 +200,7 @@ function verifyAdmin(req, res, next) {
 module.exports = {
   verifyAuth,
   verifyPreAuth,
+  requireActiveAccount,
   verifyAdmin,
   getClientIp
 };

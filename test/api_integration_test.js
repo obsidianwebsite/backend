@@ -88,13 +88,50 @@ async function runTests() {
     });
     assert(contact.status === 201 && contact.body.status === 'SUCCESS', 'Contact inquiry saved with 201 Created');
 
-    // 4. Inactive Account Stage 1 Login Block
-    console.log('\n👉 [4/14] Testing /api/v1/auth/login-stage1 with INACTIVE account');
+    // 4. Inactive Account Stage 1 Login & Transaction Restriction Verification
+    console.log('\n👉 [4/14] Testing INACTIVE account: Allowed to login, blocked from transactions');
     const inactiveLogin = await request('POST', '/api/v1/auth/login-stage1', {
       email: 'inactive@otbplcfin.com',
       password: 'Password123!'
     });
-    assert(inactiveLogin.status === 403 && inactiveLogin.body.status === 'INACTIVE', 'Inactive account correctly rejected with 403 INACTIVE');
+    assert(inactiveLogin.status === 200 && inactiveLogin.body.status === 'SUCCESS', 'Inactive account correctly allowed to login Stage 1');
+    assert(inactiveLogin.body.nextStep === 'PIN_VERIFICATION', 'Inactive account progresses to PIN_VERIFICATION');
+    assert(!!inactiveLogin.body.preAuthToken, 'Inactive account receives pre-auth token');
+
+    const inactiveStage2 = await request('POST', '/api/v1/auth/verify-pin-stage2', {
+      pin: '1234',
+      preAuthToken: inactiveLogin.body.preAuthToken
+    });
+    assert(inactiveStage2.status === 200 && inactiveStage2.body.status === 'SUCCESS', 'Inactive account completes Stage 2');
+    const inactiveToken = inactiveStage2.body.token;
+    const inactiveHeaders = { 'Authorization': `Bearer ${inactiveToken}` };
+
+    const inactiveTransfer = await request('POST', '/api/v1/transfers', {
+      rname: 'Alice Smith',
+      rbank: 'Citibank N.A.',
+      iban: 'US89370400440532013000',
+      accno: '9876543210',
+      swift: 'CITIUS33',
+      type: 'LT',
+      amt: 100,
+      comment: 'Test from inactive account'
+    }, inactiveHeaders);
+    assert(inactiveTransfer.status === 403 && inactiveTransfer.body.status === 'ACCOUNT_INACTIVE', 'Inactive transfer blocked with 403 ACCOUNT_INACTIVE');
+
+    const inactiveDeposit = await request('POST', '/api/v1/deposits', {
+      amount: 500,
+      method: 'BANK_TRANSFER',
+      payerName: 'Test Payer',
+      payerBank: 'Test Bank'
+    }, inactiveHeaders);
+    assert(inactiveDeposit.status === 403 && inactiveDeposit.body.status === 'ACCOUNT_INACTIVE', 'Inactive deposit blocked with 403 ACCOUNT_INACTIVE');
+
+    const inactiveWithdrawal = await request('POST', '/api/v1/withdrawals', {
+      amount: 100,
+      method: 'BANK_WIRE',
+      destinationDetails: 'Test Routing 123456789'
+    }, inactiveHeaders);
+    assert(inactiveWithdrawal.status === 403 && inactiveWithdrawal.body.status === 'ACCOUNT_INACTIVE', 'Inactive withdrawal blocked with 403 ACCOUNT_INACTIVE');
 
     // 5. Active User Stage 1 Login
     console.log('\n👉 [5/14] Testing /api/v1/auth/login-stage1 with active demo credentials');

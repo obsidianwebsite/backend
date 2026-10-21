@@ -9,7 +9,7 @@ async function getSummary(req, res) {
     const [accRows] = await pool.execute(
       `SELECT a.id, a.account_number, a.account_type, a.currency, a.available_balance, a.ledger_balance, 
               a.savings_balance, a.bonus_balance, a.investment_earnings, a.cot_code, a.tax_code, a.imf_code, a.status,
-              u.kyc_status, u.kyc_document_type
+              u.status AS user_status, u.kyc_status, u.kyc_document_type
        FROM accounts a
        JOIN users u ON u.id = a.user_id
        WHERE a.id = ? LIMIT 1`,
@@ -71,7 +71,7 @@ async function getSummary(req, res) {
           kycStatus: account.kyc_status || 'VERIFIED',
           kycDocumentType: account.kyc_document_type || 'Passport',
           percentageChange: '+1.2%',
-          status: account.status
+          status: (account.user_status === 'INACTIVE' || account.status === 'DORMANT' || account.status === 'FROZEN' || account.status === 'CLOSED') ? (account.user_status === 'INACTIVE' ? 'INACTIVE' : account.status) : account.status
         },
         audit: {
           lastLoginAt: req.user.lastLoginAt,

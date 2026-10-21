@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { verifyAuth, verifyPreAuth, verifyAdmin } = require('../middleware/auth.middleware');
+const { verifyAuth, verifyPreAuth, requireActiveAccount, verifyAdmin } = require('../middleware/auth.middleware');
 
 const authController = require('../controllers/auth.controller');
 const accountController = require('../controllers/account.controller');
@@ -44,19 +44,19 @@ router.get('/accounts/statement/pdf', verifyAuth, statementPdfController.downloa
 // -----------------------------------------------------------------------------
 // 3. FUNDS TRANSFER ROUTES (PROTECTED)
 // -----------------------------------------------------------------------------
-router.post('/transfers', verifyAuth, transferController.createTransfer);
-router.post('/transfers/internal', verifyAuth, transferController.createInternalTransfer);
+router.post('/transfers', verifyAuth, requireActiveAccount, transferController.createTransfer);
+router.post('/transfers/internal', verifyAuth, requireActiveAccount, transferController.createInternalTransfer);
 
 // -----------------------------------------------------------------------------
 // 4. DEPOSIT SIMULATOR ROUTES (PROTECTED - CUSTOMER TO ADMIN QUEUE)
 // -----------------------------------------------------------------------------
-router.post('/deposits', verifyAuth, depositController.createDeposit);
+router.post('/deposits', verifyAuth, requireActiveAccount, depositController.createDeposit);
 router.get('/deposits', verifyAuth, depositController.listUserDeposits);
 
 // -----------------------------------------------------------------------------
 // 5. WITHDRAWAL MODULE ROUTES (PROTECTED - CUSTOMER TO ADMIN QUEUE)
 // -----------------------------------------------------------------------------
-router.post('/withdrawals', verifyAuth, withdrawalController.createWithdrawal);
+router.post('/withdrawals', verifyAuth, requireActiveAccount, withdrawalController.createWithdrawal);
 router.get('/withdrawals', verifyAuth, withdrawalController.listUserWithdrawals);
 
 // -----------------------------------------------------------------------------

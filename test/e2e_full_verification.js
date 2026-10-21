@@ -269,8 +269,8 @@ async function runFullE2ETest() {
     });
     assert(mockDepRes.statusCode === 201, 'Customer deposit simulator request queued for admin review');
 
-    // 9. Inactive User Restriction
-    console.log('\n--- Step 9: Inactive Account Login Restriction ---');
+    // 9. Inactive User Restriction: Login allowed, transactions restricted
+    console.log('\n--- Step 9: Inactive Account Login & Transaction Restriction ---');
     const inactiveRes = await request({
       hostname: '127.0.0.1',
       port: 4200,
@@ -278,8 +278,8 @@ async function runFullE2ETest() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     }, { email: 'inactive@otbplcfin.com', password: 'Password123!' });
-    assert(inactiveRes.statusCode === 403, 'Inactive customer login rejected with HTTP 403');
-    assert(inactiveRes.body.status === 'INACTIVE', 'Branch restriction status returned');
+    assert(inactiveRes.statusCode === 200, 'Inactive customer login Stage 1 accepted with HTTP 200');
+    assert(inactiveRes.body.status === 'SUCCESS', 'Stage 1 returns SUCCESS');
 
     console.log('\n===============================================================');
     console.log(` RESULTS: ${passed} PASSED, ${failed} FAILED`);
