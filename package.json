@@ -1,7 +1,7 @@
 {
-  "name": "vaultprovenance-backend",
+  "name": "obsidiantrustbancorp-backend",
   "version": "1.0.0",
-  "description": "Enterprise Core Banking API Server for VaultProvenance",
+  "description": "Enterprise Core Banking API Server for Obsidian Trust Bancorp",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

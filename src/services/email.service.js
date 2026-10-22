@@ -15,7 +15,7 @@ if (apiKey && apiKey.trim().startsWith('re_')) {
   console.log('ℹ️ [Resend] Running in simulation/fallback mode. Add a valid RESEND_API_KEY starting with "re_" in .env to dispatch live emails.');
 }
 
-const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL || 'VaultProvenance Bank <onboarding@resend.dev>';
+const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL || 'Obsidian Trust Bancorp <onboarding@resend.dev>';
 
 /**
  * Base email dispatcher
@@ -107,7 +107,7 @@ function wrapTemplate(title, preheader, contentHtml) {
           <!-- Header -->
           <div class="header">
             <div class="brand-pill">VA</div>
-            <h1 class="brand-title">VaultProvenance Bank Plc</h1>
+            <h1 class="brand-title">Obsidian Trust Bancorp Plc</h1>
             <div class="brand-subtitle">Commercial Banking &amp; Institutional Treasury</div>
           </div>
           
@@ -119,9 +119,9 @@ function wrapTemplate(title, preheader, contentHtml) {
           <!-- Security Footer -->
           <div class="footer">
             <div class="footer-secure">🔒 256-Bit SSL Encrypted Banking Communication</div>
-            <div>&copy; 2026 VaultProvenance Bank Plc. Authorized &amp; Regulated Commercial Banking Institution.</div>
+            <div>&copy; 2026 Obsidian Trust Bancorp Plc. Authorized &amp; Regulated Commercial Banking Institution.</div>
             <div style="margin-top: 4px;">12 Bridlesmith Walk, Nottingham, NG1 2HB, United Kingdom</div>
-            <div style="margin-top: 10px; font-size: 10px; color: #cbd5e1;">This is an automated institutional notification from your VaultProvenance account.</div>
+            <div style="margin-top: 10px; font-size: 10px; color: #cbd5e1;">This is an automated institutional notification from your Obsidian Trust Bancorp account.</div>
           </div>
         </div>
       </td>
@@ -161,7 +161,7 @@ async function sendDebitAlert({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Dear ${customerName || 'Valued Client'},</h2>
-    <p>We confirm that an outward funds transfer of <strong>${currency} ${formattedAmt}</strong> has been debited from your VaultProvenance account.</p>
+    <p>We confirm that an outward funds transfer of <strong>${currency} ${formattedAmt}</strong> has been debited from your Obsidian Trust Bancorp account.</p>
 
     <div class="card-box">
       <table width="100%" cellspacing="0" cellpadding="6">
@@ -204,7 +204,7 @@ async function sendDebitAlert({
 
   return sendEmail({
     to,
-    subject: `[Debit Alert] -${currency} ${formattedAmt} Dispatched | VaultProvenance`,
+    subject: `[Debit Alert] -${currency} ${formattedAmt} Dispatched | Obsidian Trust Bancorp`,
     html: wrapTemplate(`Debit Alert - ${currency} ${formattedAmt}`, `Outward transfer of ${currency} ${formattedAmt} confirmed`, content)
   });
 }
@@ -233,7 +233,7 @@ async function sendCreditAlert({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Dear ${customerName || 'Valued Client'},</h2>
-    <p>Your deposit has cleared and the sum of <strong>+${currency} ${formattedAmt}</strong> has been credited to your VaultProvenance ledger.</p>
+    <p>Your deposit has cleared and the sum of <strong>+${currency} ${formattedAmt}</strong> has been credited to your Obsidian Trust Bancorp ledger.</p>
 
     <div class="card-box">
       <table width="100%" cellspacing="0" cellpadding="6">
@@ -264,7 +264,7 @@ async function sendCreditAlert({
 
   return sendEmail({
     to,
-    subject: `[Credit Alert] +${currency} ${formattedAmt} Cleared | VaultProvenance`,
+    subject: `[Credit Alert] +${currency} ${formattedAmt} Cleared | Obsidian Trust Bancorp`,
     html: wrapTemplate(`Credit Alert +${currency} ${formattedAmt}`, `Your deposit of ${currency} ${formattedAmt} is available`, content)
   });
 }
@@ -287,7 +287,7 @@ async function sendSupportTicketCreatedAlert({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Dear ${customerName || 'Valued Client'},</h2>
-    <p>Your support inquiry has been successfully registered with the VaultProvenance Executive Help Desk.</p>
+    <p>Your support inquiry has been successfully registered with the Obsidian Trust Bancorp Executive Help Desk.</p>
 
     <div class="card-box">
       <table width="100%" cellspacing="0" cellpadding="6">
@@ -342,7 +342,7 @@ async function sendSupportTicketReplyAlert({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Dear ${customerName || 'Valued Client'},</h2>
-    <p>A VaultProvenance Support Officer has provided an update on case <strong>${ticketNumber}</strong> (${subject}):</p>
+    <p>A Obsidian Trust Bancorp Support Officer has provided an update on case <strong>${ticketNumber}</strong> (${subject}):</p>
 
     <div style="background-color: #003432; color: #ffffff; padding: 22px; border-radius: 16px; border-left: 4px solid #0BB4D2; margin: 20px 0; font-size: 13px; line-height: 1.6; white-space: pre-line;">
       <div style="font-size: 11px; text-transform: uppercase; color: #5eead4; font-weight: 800; margin-bottom: 8px;">
@@ -382,7 +382,7 @@ async function sendSecurityLoginAlert({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Dear ${customerName || 'Valued Client'},</h2>
-    <p>A successful sign-in to your VaultProvenance Private Banking account was completed using your master credentials and two-tier transaction PIN.</p>
+    <p>A successful sign-in to your Obsidian Trust Bancorp Private Banking account was completed using your master credentials and two-tier transaction PIN.</p>
 
     <div class="card-box">
       <table width="100%" cellspacing="0" cellpadding="6">
@@ -410,8 +410,8 @@ async function sendSecurityLoginAlert({
 
   return sendEmail({
     to,
-    subject: `[Security Alert] Successful Login to VaultProvenance Account`,
-    html: wrapTemplate('VaultProvenance Security Sign-In Alert', 'New sign-in detected on your account', content)
+    subject: `[Security Alert] Successful Login to Obsidian Trust Bancorp Account`,
+    html: wrapTemplate('Obsidian Trust Bancorp Security Sign-In Alert', 'New sign-in detected on your account', content)
   });
 }
 
@@ -424,7 +424,7 @@ async function sendTestEmail({ to }) {
       <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
       <h2 style="font-size: 22px; color: #003432; margin: 0 0 10px; font-weight: 900;">Resend API Integration Active</h2>
       <p style="font-size: 14px; color: #475569; max-width: 440px; margin: 0 auto 20px;">
-        Congratulations! Your VaultProvenance Resend API integration is fully operational and authenticated.
+        Congratulations! Your Obsidian Trust Bancorp Resend API integration is fully operational and authenticated.
       </p>
 
       <div class="card-box" style="text-align: left;">
@@ -452,7 +452,7 @@ async function sendTestEmail({ to }) {
 
   return sendEmail({
     to,
-    subject: `[Resend Verification] VaultProvenance Live Email Test`,
+    subject: `[Resend Verification] Obsidian Trust Bancorp Live Email Test`,
     html: wrapTemplate('Resend API Verification Successful', 'Your email API key is functioning properly', content)
   });
 }
@@ -470,7 +470,7 @@ async function sendUserToAdminSupportEmail({
   message,
   ticketNumber
 }) {
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@vaultprovenance.com';
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@obsidiantrustbancorp.com';
   const cleanDepartment = (department || 'GENERAL_SUPPORT').replace(/_/g, ' ');
   const cleanPriority = (priority || 'MEDIUM').toUpperCase();
   const priorityColor = cleanPriority === 'URGENT' || cleanPriority === 'HIGH' ? '#dc2626' : '#0284c7';
@@ -482,7 +482,7 @@ async function sendUserToAdminSupportEmail({
     </div>
 
     <h2 style="font-size: 18px; color: #003432; margin-top: 0; font-weight: 800;">Executive Support Dispatch</h2>
-    <p>A direct inquiry has been transmitted by an authenticated client to the VaultProvenance Executive Help Desk.</p>
+    <p>A direct inquiry has been transmitted by an authenticated client to the Obsidian Trust Bancorp Executive Help Desk.</p>
 
     <div class="card-box">
       <table width="100%" cellspacing="0" cellpadding="6">
@@ -549,7 +549,7 @@ async function sendAdminCustomEmailToUser({
   badgeText = 'OFFICIAL NOTICE'
 }) {
   const cleanHeadline = headline || subject;
-  const officer = senderOfficerName || 'VaultProvenance Executive Compliance Directorate';
+  const officer = senderOfficerName || 'Obsidian Trust Bancorp Executive Compliance Directorate';
   const ctaLabel = callToActionLabel || 'Access Client Portal &rarr;';
   const ctaUrl = callToActionUrl || `${process.env.FRONTEND_URL || 'http://localhost:4200'}/e-banking/overview`;
 
@@ -574,7 +574,7 @@ ${bodyText}
     <div class="card-box" style="border-left: 4px solid #0BB4D2; background-color: #f0fdfa;">
       <div style="font-size: 11px; text-transform: uppercase; color: #0f766e; font-weight: 800; margin-bottom: 4px;">Institutional Sign-off</div>
       <div style="font-size: 13px; font-weight: 700; color: #003432;">${officer}</div>
-      <div style="font-size: 11px; color: #64748b; margin-top: 2px;">VaultProvenance Bank Plc &bull; Central Banking &amp; Treasury Operations</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Obsidian Trust Bancorp Plc &bull; Central Banking &amp; Treasury Operations</div>
     </div>
 
     <div style="text-align: center; margin-top: 28px;">
@@ -584,7 +584,7 @@ ${bodyText}
 
   return sendEmail({
     to: toUserEmail,
-    subject: `[VaultProvenance Official] ${subject}`,
+    subject: `[Obsidian Trust Bancorp Official] ${subject}`,
     html: wrapTemplate(subject, cleanHeadline, content)
   });
 }

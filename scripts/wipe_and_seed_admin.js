@@ -53,7 +53,7 @@ async function cleanDatabase() {
     console.log('\n👑 [Seed Admin] Creating clean Administrator account...');
     
     // Explicit production admin credentials
-    const adminEmail = 'admin@vaultprovenance.com';
+    const adminEmail = 'admin@obsidiantrustbancorp.com';
     const adminPassword = 'AdminPassword123!';
     const adminPin = '9999';
 

@@ -1,6 +1,6 @@
-# VaultProvenance Core Banking API Server
+# Obsidian Trust Bancorp Core Banking API Server
 
-Enterprise-grade core banking backend REST API powering the **VaultProvenance** financial platform. Built with Node.js, Express, MySQL 8, and secure multi-tier JWT authentication.
+Enterprise-grade core banking backend REST API powering the **Obsidian Trust Bancorp** financial platform. Built with Node.js, Express, MySQL 8, and secure multi-tier JWT authentication.
 
 ---
 
@@ -58,7 +58,7 @@ backend/
 
 ```bash
 git clone <repository-url>
-cd vaultprovenance-backend
+cd obsidiantrustbancorp-backend
 npm install
 ```
 
@@ -93,8 +93,8 @@ FRONTEND_URL=http://localhost:4200
 
 # Resend Email (Optional - runs in fallback mode if blank)
 RESEND_API_KEY=
-RESEND_FROM_EMAIL=VaultProvenance Bank <onboarding@resend.dev>
-ADMIN_NOTIFICATION_EMAIL=admin@vaultprovenance.com
+RESEND_FROM_EMAIL=Obsidian Trust Bancorp <onboarding@resend.dev>
+ADMIN_NOTIFICATION_EMAIL=admin@obsidiantrustbancorp.com
 ```
 
 ### 3. Initialize Database & Run Migrations

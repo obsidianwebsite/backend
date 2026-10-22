@@ -35,7 +35,7 @@ async function submitContactInquiry(req, res) {
     return res.status(201).json({
       success: true,
       status: 'SUCCESS',
-      message: 'Thank you for reaching out to VaultProvenance. A corporate relationship manager will review your inquiry shortly.'
+      message: 'Thank you for reaching out to Obsidian Trust Bancorp. A corporate relationship manager will review your inquiry shortly.'
     });
   } catch (err) {
     console.error('Error in submitContactInquiry:', err);
@@ -567,7 +567,7 @@ async function replyAdminTicket(req, res) {
     }
 
     const messageId = uuidv4();
-    const adminName = adminUser.fullName || 'VaultProvenance Support Officer';
+    const adminName = adminUser.fullName || 'Obsidian Trust Bancorp Support Officer';
 
     await pool.execute(
       `INSERT INTO support_messages (id, ticket_id, sender_id, sender_role, sender_name, message, is_read)

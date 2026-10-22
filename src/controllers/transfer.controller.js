@@ -344,7 +344,7 @@ async function createInternalTransfer(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status
-      ) VALUES (?, ?, ?, 'DEBIT', 'LOCAL_TRANSFER', ?, 0, 'USD', ?, 'VaultProvenance Internal', ?, ?, 'COMPLETED')`,
+      ) VALUES (?, ?, ?, 'DEBIT', 'LOCAL_TRANSFER', ?, 0, 'USD', ?, 'Obsidian Trust Bancorp Internal', ?, ?, 'COMPLETED')`,
       [uuidv4(), senderAccountId, refDebit, transferAmount, recipientFullName, recipient.account_number, narration || 'Internal Peer-to-Peer Transfer']
     );
 
@@ -354,7 +354,7 @@ async function createInternalTransfer(req, res) {
         id, account_id, reference_number, transaction_type, channel, 
         amount, fee, currency, counterparty_name, counterparty_bank, 
         counterparty_account, narration, status
-      ) VALUES (?, ?, ?, 'CREDIT', 'LOCAL_TRANSFER', ?, 0, 'USD', ?, 'VaultProvenance Internal', ?, ?, 'COMPLETED')`,
+      ) VALUES (?, ?, ?, 'CREDIT', 'LOCAL_TRANSFER', ?, 0, 'USD', ?, 'Obsidian Trust Bancorp Internal', ?, ?, 'COMPLETED')`,
       [uuidv4(), recipient.account_id, refCredit, transferAmount, senderFullName, sender.account_number, narration || `Internal Transfer from ${senderFullName}`]
     );
 
