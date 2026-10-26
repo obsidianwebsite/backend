@@ -30,7 +30,7 @@ async function getSettings(req, res) {
           is_setup_completed: true,
           livechat_enabled: true,
           livechat_provider: 'TAWK_TO',
-          livechat_widget_id: '',
+          livechat_widget_id: '6adfca7d13dd5f34744951c9/1k5t2tvp5',
           livechat_custom_script: ''
         }
       });
@@ -132,7 +132,7 @@ async function updateSettings(req, res) {
         is_setup_completed === false ? 0 : 1,
         livechat_enabled === false ? 0 : 1,
         livechat_provider ? livechat_provider.trim() : 'TAWK_TO',
-        livechat_widget_id ? livechat_widget_id.trim() : '',
+        livechat_widget_id ? livechat_widget_id.trim() : '6adfca7d13dd5f34744951c9/1k5t2tvp5',
         livechat_custom_script ? livechat_custom_script.trim() : ''
       ]
     );

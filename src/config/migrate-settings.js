@@ -24,7 +24,7 @@ async function initSystemSettingsTable() {
       is_setup_completed BOOLEAN NOT NULL DEFAULT TRUE,
       livechat_enabled BOOLEAN NOT NULL DEFAULT TRUE,
       livechat_provider VARCHAR(50) NOT NULL DEFAULT 'TAWK_TO',
-      livechat_widget_id VARCHAR(255) DEFAULT '',
+      livechat_widget_id VARCHAR(255) DEFAULT '6adfca7d13dd5f34744951c9/1k5t2tvp5',
       livechat_custom_script TEXT,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -63,7 +63,7 @@ async function initSystemSettingsTable() {
     // 5. Add livechat_widget_id if not present
     if (!colNames.includes('livechat_widget_id')) {
       console.log('🔧 Adding missing column: livechat_widget_id...');
-      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_widget_id VARCHAR(255) DEFAULT ''`);
+      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_widget_id VARCHAR(255) DEFAULT '6adfca7d13dd5f34744951c9/1k5t2tvp5'`);
     }
 
     // 6. Add livechat_custom_script if not present
