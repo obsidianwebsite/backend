@@ -178,7 +178,7 @@ async function updateSettings(req, res) {
     console.error('Error updating system settings:', err);
     return res.status(500).json({
       success: false,
-      message: 'Failed to update system settings.'
+      message: err.message || 'Failed to update system settings.'
     });
   }
 }

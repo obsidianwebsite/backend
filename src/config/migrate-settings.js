@@ -1,7 +1,7 @@
 const pool = require('./db');
 
 async function initSystemSettingsTable() {
-  console.log('🔄 Initializing system_settings table if not existing...');
+  console.log('🔄 Initializing system_settings table and schema migrations...');
   
   await pool.query(`
     CREATE TABLE IF NOT EXISTS system_settings (
@@ -30,6 +30,52 @@ async function initSystemSettingsTable() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
 
+  // Dynamically inspect existing columns to upgrade TEXT -> LONGTEXT and add any missing livechat columns
+  try {
+    const [columns] = await pool.query(`SHOW COLUMNS FROM system_settings`);
+    const colNames = columns.map(c => c.Field);
+    const colTypes = Object.fromEntries(columns.map(c => [c.Field, (c.Type || '').toLowerCase()]));
+
+    // 1. Upgrade site_logo_url to LONGTEXT (TEXT is limited to 64KB which blocks base64 uploads)
+    if (colTypes['site_logo_url'] && !colTypes['site_logo_url'].includes('longtext')) {
+      console.log('🔧 Upgrading site_logo_url column to LONGTEXT...');
+      await pool.query(`ALTER TABLE system_settings MODIFY COLUMN site_logo_url LONGTEXT`);
+    }
+
+    // 2. Upgrade site_favicon_url to LONGTEXT
+    if (colTypes['site_favicon_url'] && !colTypes['site_favicon_url'].includes('longtext')) {
+      console.log('🔧 Upgrading site_favicon_url column to LONGTEXT...');
+      await pool.query(`ALTER TABLE system_settings MODIFY COLUMN site_favicon_url LONGTEXT`);
+    }
+
+    // 3. Add livechat_enabled if not present
+    if (!colNames.includes('livechat_enabled')) {
+      console.log('🔧 Adding missing column: livechat_enabled...');
+      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_enabled BOOLEAN NOT NULL DEFAULT TRUE`);
+    }
+
+    // 4. Add livechat_provider if not present
+    if (!colNames.includes('livechat_provider')) {
+      console.log('🔧 Adding missing column: livechat_provider...');
+      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_provider VARCHAR(50) NOT NULL DEFAULT 'TAWK_TO'`);
+    }
+
+    // 5. Add livechat_widget_id if not present
+    if (!colNames.includes('livechat_widget_id')) {
+      console.log('🔧 Adding missing column: livechat_widget_id...');
+      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_widget_id VARCHAR(255) DEFAULT ''`);
+    }
+
+    // 6. Add livechat_custom_script if not present
+    if (!colNames.includes('livechat_custom_script')) {
+      console.log('🔧 Adding missing column: livechat_custom_script...');
+      await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_custom_script TEXT`);
+    }
+  } catch (schemaErr) {
+    console.warn('⚠️ Schema check / column alter note:', schemaErr.message);
+  }
+
+  // Seed default row if table is completely empty
   await pool.query(`
     INSERT INTO system_settings (
       id,
