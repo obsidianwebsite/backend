@@ -27,7 +27,11 @@ async function getSettings(req, res) {
           about_summary: 'Obsidian Trust Bancorp Plc is an authorized and regulated British-Atlantic commercial banking and institutional treasury corporation.',
           copyright_text: '© 2026 Obsidian Trust Bancorp Plc. Authorized & Regulated Commercial Banking Institution.',
           support_hours: '24/7 Global Treasury Support Desk',
-          is_setup_completed: true
+          is_setup_completed: true,
+          livechat_enabled: true,
+          livechat_provider: 'TAWK_TO',
+          livechat_widget_id: '',
+          livechat_custom_script: ''
         }
       });
     }
@@ -65,7 +69,11 @@ async function updateSettings(req, res) {
       about_summary,
       copyright_text,
       support_hours,
-      is_setup_completed
+      is_setup_completed,
+      livechat_enabled,
+      livechat_provider,
+      livechat_widget_id,
+      livechat_custom_script
     } = req.body;
 
     if (!site_name || !contact_email) {
@@ -80,9 +88,10 @@ async function updateSettings(req, res) {
         id, site_name, site_tagline, site_logo_url, site_favicon_url,
         contact_email, admin_notification_email, phone_number, address,
         swift_code, routing_number, currency_code, currency_symbol,
-        about_summary, copyright_text, support_hours, is_setup_completed
+        about_summary, copyright_text, support_hours, is_setup_completed,
+        livechat_enabled, livechat_provider, livechat_widget_id, livechat_custom_script
       ) VALUES (
-        'main_settings', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        'main_settings', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       ) ON DUPLICATE KEY UPDATE
         site_name = VALUES(site_name),
         site_tagline = VALUES(site_tagline),
@@ -99,7 +108,11 @@ async function updateSettings(req, res) {
         about_summary = VALUES(about_summary),
         copyright_text = VALUES(copyright_text),
         support_hours = VALUES(support_hours),
-        is_setup_completed = VALUES(is_setup_completed)`,
+        is_setup_completed = VALUES(is_setup_completed),
+        livechat_enabled = VALUES(livechat_enabled),
+        livechat_provider = VALUES(livechat_provider),
+        livechat_widget_id = VALUES(livechat_widget_id),
+        livechat_custom_script = VALUES(livechat_custom_script)`,
       [
         site_name.trim(),
         site_tagline ? site_tagline.trim() : 'Commercial Banking & Institutional Treasury',
@@ -116,7 +129,11 @@ async function updateSettings(req, res) {
         about_summary ? about_summary.trim() : '',
         copyright_text ? copyright_text.trim() : `© 2026 ${site_name.trim()}. Authorized & Regulated Commercial Banking Institution.`,
         support_hours ? support_hours.trim() : '24/7 Global Treasury Support Desk',
-        is_setup_completed === false ? 0 : 1
+        is_setup_completed === false ? 0 : 1,
+        livechat_enabled === false ? 0 : 1,
+        livechat_provider ? livechat_provider.trim() : 'TAWK_TO',
+        livechat_widget_id ? livechat_widget_id.trim() : '',
+        livechat_custom_script ? livechat_custom_script.trim() : ''
       ]
     );
 

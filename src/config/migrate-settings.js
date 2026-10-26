@@ -22,6 +22,10 @@ async function initSystemSettingsTable() {
       copyright_text VARCHAR(255) NOT NULL DEFAULT '© 2026 Obsidian Trust Bancorp Plc. Authorized & Regulated Commercial Banking Institution.',
       support_hours VARCHAR(100) NOT NULL DEFAULT '24/7 Global Treasury Support Desk',
       is_setup_completed BOOLEAN NOT NULL DEFAULT TRUE,
+      livechat_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+      livechat_provider VARCHAR(50) NOT NULL DEFAULT 'TAWK_TO',
+      livechat_widget_id VARCHAR(255) DEFAULT '',
+      livechat_custom_script TEXT,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
