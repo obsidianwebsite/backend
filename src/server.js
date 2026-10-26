@@ -2,6 +2,9 @@ const app = require('./app');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
+const { initSystemSettingsTable } = require('./config/migrate-settings');
+initSystemSettingsTable().catch(err => console.error('Settings init error:', err.message));
+
 const PORT = parseInt(process.env.PORT, 10) || 5000;
 
 const server = app.listen(PORT, () => {

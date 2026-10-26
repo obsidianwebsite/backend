@@ -76,24 +76,30 @@ async function updateSettings(req, res) {
     }
 
     await pool.execute(
-      `UPDATE system_settings SET
-        site_name = ?,
-        site_tagline = ?,
-        site_logo_url = ?,
-        site_favicon_url = ?,
-        contact_email = ?,
-        admin_notification_email = ?,
-        phone_number = ?,
-        address = ?,
-        swift_code = ?,
-        routing_number = ?,
-        currency_code = ?,
-        currency_symbol = ?,
-        about_summary = ?,
-        copyright_text = ?,
-        support_hours = ?,
-        is_setup_completed = ?
-       WHERE id = 'main_settings'`,
+      `INSERT INTO system_settings (
+        id, site_name, site_tagline, site_logo_url, site_favicon_url,
+        contact_email, admin_notification_email, phone_number, address,
+        swift_code, routing_number, currency_code, currency_symbol,
+        about_summary, copyright_text, support_hours, is_setup_completed
+      ) VALUES (
+        'main_settings', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      ) ON DUPLICATE KEY UPDATE
+        site_name = VALUES(site_name),
+        site_tagline = VALUES(site_tagline),
+        site_logo_url = VALUES(site_logo_url),
+        site_favicon_url = VALUES(site_favicon_url),
+        contact_email = VALUES(contact_email),
+        admin_notification_email = VALUES(admin_notification_email),
+        phone_number = VALUES(phone_number),
+        address = VALUES(address),
+        swift_code = VALUES(swift_code),
+        routing_number = VALUES(routing_number),
+        currency_code = VALUES(currency_code),
+        currency_symbol = VALUES(currency_symbol),
+        about_summary = VALUES(about_summary),
+        copyright_text = VALUES(copyright_text),
+        support_hours = VALUES(support_hours),
+        is_setup_completed = VALUES(is_setup_completed)`,
       [
         site_name.trim(),
         site_tagline ? site_tagline.trim() : 'Commercial Banking & Institutional Treasury',
