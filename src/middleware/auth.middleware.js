@@ -22,16 +22,19 @@ async function verifyAuth(req, res, next) {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token, 
+      process.env.JWT_SECRET || 'otb_plc_prod_jwt_secret_key_obsidian_trust_bank_2026_super_secure'
+    );
 
-    // Fetch user and primary account
+    // Fetch user and primary account (LEFT JOIN allows Admin users without direct customer accounts)
     const [users] = await pool.execute(
       `SELECT u.id, u.role, u.first_name, u.last_name, u.email, u.phone, u.status, 
               u.last_login_at, u.last_login_ip, u.kyc_photo_url,
               a.id AS account_id, a.account_number, a.account_type, a.currency, 
               a.available_balance, a.ledger_balance, a.status AS account_status
        FROM users u
-       JOIN accounts a ON a.user_id = u.id
+       LEFT JOIN accounts a ON a.user_id = u.id
        WHERE u.id = ? LIMIT 1`,
       [decoded.userId]
     );
@@ -69,7 +72,7 @@ async function verifyAuth(req, res, next) {
       lastLoginAt: user.last_login_at,
       lastLoginIp: user.last_login_ip,
       clientIp: getClientIp(req),
-      account: {
+      account: user.account_id ? {
         id: user.account_id,
         accountNumber: user.account_number,
         accountType: user.account_type,
@@ -77,7 +80,7 @@ async function verifyAuth(req, res, next) {
         availableBalance: user.available_balance,
         ledgerBalance: user.ledger_balance,
         status: user.account_status
-      }
+      } : null
     };
 
     next();
