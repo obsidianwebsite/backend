@@ -22,11 +22,16 @@ const investmentController = require('../controllers/investment.controller');
 const tradingController = require('../controllers/trading.controller');
 const academyController = require('../controllers/academy.controller');
 const systemController = require('../controllers/system.controller');
+const uploadController = require('../controllers/upload.controller');
 
 // Health Check
 router.get('/health', (req, res) => {
   res.status(200).json({ status: 'HEALTHY', timestamp: new Date().toISOString() });
 });
+
+// Upload Routes (Public / Registration & General KYC)
+router.post('/upload/kyc', uploadController.uploadKycImage);
+router.post('/upload/image', uploadController.uploadKycImage);
 
 router.post('/auth/login', authController.loginStage1);
 router.post('/auth/login-stage1', authController.loginStage1);

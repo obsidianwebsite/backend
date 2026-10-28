@@ -71,6 +71,17 @@ async function initSystemSettingsTable() {
       console.log('🔧 Adding missing column: livechat_custom_script...');
       await pool.query(`ALTER TABLE system_settings ADD COLUMN livechat_custom_script TEXT`);
     }
+
+    // 7. Upgrade users.kyc_photo_url from VARCHAR(255) to LONGTEXT to support Cloudinary URLs or fallbacks
+    try {
+      const [userCols] = await pool.query(`SHOW COLUMNS FROM users LIKE 'kyc_photo_url'`);
+      if (userCols.length > 0 && userCols[0].Type.toLowerCase().startsWith('varchar')) {
+        console.log('🔧 Upgrading users.kyc_photo_url to LONGTEXT...');
+        await pool.query(`ALTER TABLE users MODIFY COLUMN kyc_photo_url LONGTEXT`);
+      }
+    } catch (uErr) {
+      // Table check note
+    }
   } catch (schemaErr) {
     console.warn('⚠️ Schema check / column alter note:', schemaErr.message);
   }
