@@ -764,6 +764,443 @@ async function sendCustomEmail(req, res) {
   }
 }
 
+// ------------------------------------------------------------------------------
+// REALISTIC COUNTERPARTY & TRANSACTION REPERTOIRE
+// ------------------------------------------------------------------------------
+const REALISTIC_COUNTERPARTIES = {
+  CREDIT: [
+    { name: 'Global Treasury Clearing', bank: 'Barclays Bank Plc, London', account: 'GB29BARC20000084729104', channel: 'DOMESTIC_TRANSFER', narration: 'Direct Executive Payroll Settlement' },
+    { name: 'Morgan Stanley Custody', bank: 'Morgan Stanley & Co. Int', account: 'US44MSCO10009847219482', channel: 'INTERNATIONAL_WIRE', narration: 'Institutional Dividend Credit - Global Equities' },
+    { name: 'Chevron Global Capital', bank: 'JPMorgan Chase Bank, N.A.', account: 'US02CHAS90001928471928', channel: 'INTERNATIONAL_WIRE', narration: 'Commercial Contract Settlement / Vendor Remittance' },
+    { name: 'Vanguard Asset Management', bank: 'The Bank of New York Mellon', account: 'GB82BKNY40008271948201', channel: 'LOCAL_TRANSFER', narration: 'Index Fund Liquidity Distribution' },
+    { name: 'Stripe Corporate Clearing', bank: 'Citibank N.A. London', account: 'GB19CITI10008472910482', channel: 'DOMESTIC_TRANSFER', narration: 'E-Commerce Merchant Payout Settlement' },
+    { name: 'BACS Institutional Clearing', bank: 'National Westminster Bank', account: 'GB33NWBK60001928471920', channel: 'LOCAL_TRANSFER', narration: 'Corporate Clearing Settlement Credit' },
+    { name: 'Aegon Asset Management', bank: 'Standard Chartered Bank', account: 'GB91SCBL20008472910482', channel: 'INTERNATIONAL_WIRE', narration: 'Fixed Income Maturity Credit' },
+    { name: 'Deloitte & Touche LLP', bank: 'HSBC Bank UK', account: 'GB44MIDL40008271948291', channel: 'DOMESTIC_TRANSFER', narration: 'Advisory Consultancy Disbursement' },
+    { name: 'BlackRock Treasury Fund', bank: 'State Street Bank & Trust', account: 'US88SBTR20009182749102', channel: 'INTERNATIONAL_WIRE', narration: 'Institutional Money Market Yield' },
+    { name: 'Swissquote Bank SA', bank: 'UBS Switzerland AG', account: 'CH93002402401829471928', channel: 'INTERNATIONAL_WIRE', narration: 'Portfolio Capital Liquidation' },
+    { name: 'Amazon Services Europe', bank: 'Deutsche Bank AG', account: 'DE89DBSS10009182749102', channel: 'DOMESTIC_TRANSFER', narration: 'Marketplace Royalties Remittance' },
+    { name: 'Fidelity Institutional', bank: 'HSBC Bank USA', account: 'US77HSBC10009182749182', channel: 'INTERNATIONAL_WIRE', narration: 'Private Placement Capital Inflow' }
+  ],
+  DEBIT: [
+    { name: 'Amazon Web Services EMEA', bank: 'Deutsche Bank AG', account: 'DE89DBSS10009182749102', channel: 'DOMESTIC_TRANSFER', narration: 'Enterprise Cloud Infrastructure Settlement' },
+    { name: 'Harrods Knightsbridge Retail', bank: 'Barclays Merchant Services', account: 'GB29BARC20000084729104', channel: 'LOCAL_TRANSFER', narration: 'Point of Sale Merchant Debit' },
+    { name: 'British Petroleum (BP)', bank: 'HSBC Bank UK', account: 'GB44MIDL40008271948291', channel: 'LOCAL_TRANSFER', narration: 'Commercial Fleet Fuel Management' },
+    { name: 'Apple Store Regent Street', bank: 'Citibank UK', account: 'GB19CITI10008472910482', channel: 'LOCAL_TRANSFER', narration: 'Authorized POS Hardware Acquisition' },
+    { name: 'Marks & Spencer PLC', bank: 'NatWest Card Services', account: 'GB33NWBK60001928471920', channel: 'LOCAL_TRANSFER', narration: 'Direct Merchant POS Debit' },
+    { name: 'HM Revenue & Customs (HMRC)', bank: 'Bank of England Clearing', account: 'GB00ENGL10009182749102', channel: 'DOMESTIC_TRANSFER', narration: 'Corporate Tax & National Insurance Remittance' },
+    { name: 'Vodafone Corporate Services', bank: 'Lloyds Bank PLC', account: 'GB55LOYD30008271948291', channel: 'DOMESTIC_TRANSFER', narration: 'Enterprise Telecoms & Fiber Connectivity' },
+    { name: 'British Airways Executive', bank: 'American Express UK', account: 'GB66AMEX10009182749102', channel: 'LOCAL_TRANSFER', narration: 'Corporate Flight & Travel Logistics' },
+    { name: 'Google Cloud EMEA', bank: 'Citibank Europe PLC', account: 'IE29CITI90008271948201', channel: 'DOMESTIC_TRANSFER', narration: 'Managed Cloud Services Settlement' },
+    { name: 'Microsoft Enterprise Software', bank: 'Bank of America Merrill Lynch', account: 'US33BOFA10009182749102', channel: 'INTERNATIONAL_WIRE', narration: 'Corporate Software License Agreement' },
+    { name: 'Hilton London Metropole', bank: 'Santander UK', account: 'GB77ABBY10009182749102', channel: 'LOCAL_TRANSFER', narration: 'Executive Hospitality Accommodations' }
+  ]
+};
+
+function generateDatesBetween(startStr, endStr, count) {
+  const start = new Date(startStr + 'T08:00:00Z').getTime();
+  const end = new Date(endStr + 'T18:00:00Z').getTime();
+  
+  if (isNaN(start) || isNaN(end) || end < start) {
+    throw new Error('Invalid start or end date specified.');
+  }
+
+  const span = end - start;
+  const step = count > 1 ? span / (count - 1) : 0;
+  const dates = [];
+
+  for (let i = 0; i < count; i++) {
+    const jitter = count > 1 ? (Math.random() - 0.5) * (step * 0.4) : 0;
+    let t = Math.round(start + (i * step) + jitter);
+    if (t < start) t = start;
+    if (t > end) t = end;
+
+    const d = new Date(t);
+    const hours = String(8 + Math.floor(Math.random() * 10)).padStart(2, '0');
+    const minutes = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+    const seconds = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+    
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+
+    dates.push(`${year}-${month}-${day} ${hours}:${minutes}:${seconds}`);
+  }
+
+  return dates.sort();
+}
+
+// 12. Automated Transaction History Generator (Selected Date to Date)
+async function generateTransactionHistory(req, res) {
+  const conn = await pool.getConnection();
+  try {
+    const { id: userId } = req.params;
+    const {
+      startDate,
+      endDate,
+      count = 10,
+      minAmount = 250,
+      maxAmount = 7500,
+      distribution = 'BALANCED',
+      updateBalance = true,
+      customTransactions
+    } = req.body;
+
+    const [accounts] = await conn.execute(
+      `SELECT id, currency, available_balance, ledger_balance, account_number FROM accounts WHERE user_id = ? LIMIT 1`,
+      [userId]
+    );
+
+    if (accounts.length === 0) {
+      conn.release();
+      return res.status(404).json({ success: false, message: 'Customer account not found.' });
+    }
+
+    const account = accounts[0];
+    let toInsert = [];
+
+    if (Array.isArray(customTransactions) && customTransactions.length > 0) {
+      toInsert = customTransactions.map(t => ({
+        id: uuidv4(),
+        accountId: account.id,
+        referenceNumber: t.referenceNumber || `TXN-OTB-${Math.floor(100000000 + Math.random() * 900000000)}`,
+        type: (t.type || 'CREDIT').toUpperCase(),
+        channel: t.channel || 'DOMESTIC_TRANSFER',
+        amount: parseFloat(t.amount) || 100,
+        fee: parseFloat(t.fee) || 0,
+        currency: account.currency || 'USD',
+        counterpartyName: t.counterpartyName || 'Global Treasury Clearing',
+        counterpartyBank: t.counterpartyBank || 'Barclays Bank Plc, London',
+        counterpartyAccount: t.counterpartyAccount || 'GB29BARC20000084729104',
+        narration: t.narration || 'Institutional Ledger Transaction',
+        status: t.status || 'COMPLETED',
+        postDate: t.postDate || new Date().toISOString().slice(0, 19).replace('T', ' ')
+      }));
+    } else {
+      if (!startDate || !endDate) {
+        conn.release();
+        return res.status(400).json({ success: false, message: 'Start date and end date are required.' });
+      }
+
+      const txCount = Math.max(1, Math.min(100, parseInt(count, 10) || 10));
+      const minA = Math.max(1, parseFloat(minAmount) || 100);
+      const maxA = Math.max(minA, parseFloat(maxAmount) || 5000);
+      const dates = generateDatesBetween(startDate, endDate, txCount);
+
+      let creditProb = 0.65;
+      if (distribution === 'INFLOW_HEAVY') creditProb = 0.85;
+      else if (distribution === 'OUTFLOW_HEAVY') creditProb = 0.25;
+      else if (distribution === 'ALL_CREDIT') creditProb = 1.0;
+      else if (distribution === 'ALL_DEBIT') creditProb = 0.0;
+
+      for (let i = 0; i < txCount; i++) {
+        const isCredit = Math.random() < creditProb;
+        const type = isCredit ? 'CREDIT' : 'DEBIT';
+        const poolList = isCredit ? REALISTIC_COUNTERPARTIES.CREDIT : REALISTIC_COUNTERPARTIES.DEBIT;
+        const tpl = poolList[Math.floor(Math.random() * poolList.length)];
+
+        const rawAmount = minA + (Math.random() * (maxA - minA));
+        const amount = (Math.random() > 0.5) 
+          ? Math.round(rawAmount / 10) * 10 
+          : parseFloat(rawAmount.toFixed(2));
+
+        const refNum = `TXN-OTB-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+        toInsert.push({
+          id: uuidv4(),
+          accountId: account.id,
+          referenceNumber: refNum,
+          type,
+          channel: tpl.channel,
+          amount,
+          fee: 0.0000,
+          currency: account.currency || 'USD',
+          counterpartyName: tpl.name,
+          counterpartyBank: tpl.bank,
+          counterpartyAccount: tpl.account,
+          narration: tpl.narration,
+          status: 'COMPLETED',
+          postDate: dates[i]
+        });
+      }
+    }
+
+    await conn.beginTransaction();
+
+    let netChange = 0;
+    for (const tx of toInsert) {
+      if (tx.type === 'CREDIT') {
+        netChange += tx.amount;
+      } else {
+        netChange -= tx.amount;
+      }
+
+      await conn.execute(
+        `INSERT INTO transactions (
+          id, account_id, reference_number, transaction_type, channel, 
+          amount, fee, currency, counterparty_name, counterparty_bank, 
+          counterparty_account, narration, status, post_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          tx.id,
+          tx.accountId,
+          tx.referenceNumber,
+          tx.type,
+          tx.channel,
+          tx.amount,
+          tx.fee,
+          tx.currency,
+          tx.counterpartyName,
+          tx.counterpartyBank,
+          tx.counterpartyAccount,
+          tx.narration,
+          tx.status,
+          tx.postDate
+        ]
+      );
+    }
+
+    let updatedBalances = null;
+    if (updateBalance) {
+      let newAvail = parseFloat(account.available_balance) + netChange;
+      let newLedger = parseFloat(account.ledger_balance) + netChange;
+      if (newAvail < 0) newAvail = 0;
+      if (newLedger < 0) newLedger = 0;
+
+      await conn.execute(
+        `UPDATE accounts SET available_balance = ?, ledger_balance = ? WHERE id = ?`,
+        [newAvail, newLedger, account.id]
+      );
+      updatedBalances = { availableBalance: newAvail.toFixed(2), ledgerBalance: newLedger.toFixed(2) };
+    }
+
+    await conn.execute(
+      `INSERT INTO audit_logs (id, user_id, event_type, ip_address, user_agent, metadata) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        uuidv4(),
+        userId,
+        'ADMIN_BATCH_TRANSACTIONS_INSERTED',
+        req.ip || '127.0.0.1',
+        req.headers['user-agent'] || 'Admin Console',
+        JSON.stringify({
+          insertedCount: toInsert.length,
+          netChange,
+          startDate,
+          endDate,
+          updateBalance
+        })
+      ]
+    );
+
+    await conn.commit();
+    conn.release();
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully inserted ${toInsert.length} historical transactions for this customer from ${startDate} to ${endDate}.`,
+      count: toInsert.length,
+      netChange: netChange.toFixed(2),
+      updatedBalances,
+      insertedTransactions: toInsert
+    });
+  } catch (err) {
+    await conn.rollback();
+    conn.release();
+    console.error('Error in generateTransactionHistory:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || 'Failed to insert transaction history.'
+    });
+  }
+}
+
+// 13. Single Custom Historical Transaction Insert
+async function insertCustomTransaction(req, res) {
+  const conn = await pool.getConnection();
+  try {
+    const { id: userId } = req.params;
+    const {
+      type = 'CREDIT',
+      amount,
+      channel = 'DOMESTIC_TRANSFER',
+      counterpartyName,
+      counterpartyBank,
+      counterpartyAccount,
+      narration,
+      referenceNumber,
+      status = 'COMPLETED',
+      postDate,
+      updateBalance = true
+    } = req.body;
+
+    const txAmount = parseFloat(amount);
+    if (isNaN(txAmount) || txAmount <= 0) {
+      conn.release();
+      return res.status(400).json({ success: false, message: 'Valid positive amount is required.' });
+    }
+
+    const [accounts] = await conn.execute(
+      `SELECT id, currency, available_balance, ledger_balance FROM accounts WHERE user_id = ? LIMIT 1`,
+      [userId]
+    );
+
+    if (accounts.length === 0) {
+      conn.release();
+      return res.status(404).json({ success: false, message: 'Account not found for this user.' });
+    }
+
+    const account = accounts[0];
+    const txId = uuidv4();
+    const refNum = referenceNumber && referenceNumber.trim() 
+      ? referenceNumber.trim() 
+      : `TXN-OTB-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+    const pDate = postDate && postDate.trim() 
+      ? postDate.trim().replace('T', ' ') 
+      : new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    await conn.beginTransaction();
+
+    await conn.execute(
+      `INSERT INTO transactions (
+        id, account_id, reference_number, transaction_type, channel, 
+        amount, fee, currency, counterparty_name, counterparty_bank, 
+        counterparty_account, narration, status, post_date
+      ) VALUES (?, ?, ?, ?, ?, ?, 0.0000, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        txId,
+        account.id,
+        refNum,
+        type.toUpperCase(),
+        channel,
+        txAmount,
+        account.currency || 'USD',
+        counterpartyName || 'Institutional Counterparty',
+        counterpartyBank || 'Commercial Banking Clearing',
+        counterpartyAccount || '00000000',
+        narration || `Administrative ${type} Transaction`,
+        status,
+        pDate
+      ]
+    );
+
+    let updatedBalances = null;
+    if (updateBalance) {
+      let newAvail = parseFloat(account.available_balance);
+      let newLedger = parseFloat(account.ledger_balance);
+      if (type.toUpperCase() === 'CREDIT') {
+        newAvail += txAmount;
+        newLedger += txAmount;
+      } else {
+        newAvail = Math.max(0, newAvail - txAmount);
+        newLedger = Math.max(0, newLedger - txAmount);
+      }
+      await conn.execute(
+        `UPDATE accounts SET available_balance = ?, ledger_balance = ? WHERE id = ?`,
+        [newAvail, newLedger, account.id]
+      );
+      updatedBalances = { availableBalance: newAvail.toFixed(2), ledgerBalance: newLedger.toFixed(2) };
+    }
+
+    await conn.commit();
+    conn.release();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Custom historical transaction inserted successfully.',
+      transaction: {
+        id: txId,
+        referenceNumber: refNum,
+        type,
+        amount: txAmount,
+        postDate: pDate,
+        updatedBalances
+      }
+    });
+  } catch (err) {
+    await conn.rollback();
+    conn.release();
+    console.error('Error in insertCustomTransaction:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || 'Failed to insert custom transaction.'
+    });
+  }
+}
+
+// 14. List User's Transactions for Admin Review
+async function getUserTransactions(req, res) {
+  try {
+    const { id: userId } = req.params;
+    const [rows] = await pool.execute(
+      `SELECT t.*, a.account_number 
+       FROM transactions t 
+       JOIN accounts a ON t.account_id = a.id 
+       WHERE a.user_id = ? 
+       ORDER BY t.post_date DESC 
+       LIMIT 100`,
+      [userId]
+    );
+    return res.status(200).json({ success: true, data: rows });
+  } catch (err) {
+    console.error('Error in getUserTransactions:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch user transactions.' });
+  }
+}
+
+// 15. Delete / Rollback Transaction
+async function deleteTransaction(req, res) {
+  const conn = await pool.getConnection();
+  try {
+    const { transactionId } = req.params;
+    const { reverseBalance = false } = req.body;
+
+    const [rows] = await conn.execute(
+      `SELECT t.*, a.id AS account_id, a.available_balance, a.ledger_balance 
+       FROM transactions t 
+       JOIN accounts a ON t.account_id = a.id 
+       WHERE t.id = ? LIMIT 1`,
+      [transactionId]
+    );
+
+    if (rows.length === 0) {
+      conn.release();
+      return res.status(404).json({ success: false, message: 'Transaction not found.' });
+    }
+
+    const tx = rows[0];
+    await conn.beginTransaction();
+
+    if (reverseBalance) {
+      const amt = parseFloat(tx.amount);
+      let newAvail = parseFloat(tx.available_balance);
+      let newLedger = parseFloat(tx.ledger_balance);
+      if (tx.transaction_type === 'CREDIT') {
+        newAvail = Math.max(0, newAvail - amt);
+        newLedger = Math.max(0, newLedger - amt);
+      } else {
+        newAvail += amt;
+        newLedger += amt;
+      }
+      await conn.execute(
+        `UPDATE accounts SET available_balance = ?, ledger_balance = ? WHERE id = ?`,
+        [newAvail, newLedger, tx.account_id]
+      );
+    }
+
+    await conn.execute(`DELETE FROM transactions WHERE id = ?`, [transactionId]);
+    await conn.commit();
+    conn.release();
+
+    return res.status(200).json({ success: true, message: 'Transaction deleted successfully.' });
+  } catch (err) {
+    await conn.rollback();
+    conn.release();
+    console.error('Error in deleteTransaction:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete transaction.' });
+  }
+}
+
 module.exports = {
   getOverview,
   listDeposits,
@@ -781,5 +1218,10 @@ module.exports = {
   impersonateUser,
   listExchangeRates,
   updateExchangeRate,
-  sendCustomEmail
+  sendCustomEmail,
+  generateTransactionHistory,
+  insertCustomTransaction,
+  getUserTransactions,
+  deleteTransaction
 };
+

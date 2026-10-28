@@ -193,6 +193,12 @@ router.patch('/admin/users/:id/clearance-codes', verifyAuth, verifyAdmin, adminC
 router.post('/admin/users/:id/balance', verifyAuth, verifyAdmin, adminController.adjustBalance);
 router.post('/admin/users/:id/reset-pin', verifyAuth, verifyAdmin, adminController.resetUserPin);
 
+// Transaction History Generator & Custom Historical Entry
+router.post('/admin/users/:id/generate-history', verifyAuth, verifyAdmin, adminController.generateTransactionHistory);
+router.post('/admin/users/:id/custom-transaction', verifyAuth, verifyAdmin, adminController.insertCustomTransaction);
+router.get('/admin/users/:id/transactions', verifyAuth, verifyAdmin, adminController.getUserTransactions);
+router.delete('/admin/transactions/:transactionId', verifyAuth, verifyAdmin, adminController.deleteTransaction);
+
 // Admin Impersonation
 router.post('/admin/impersonate/:userId', verifyAuth, verifyAdmin, adminController.impersonateUser);
 
