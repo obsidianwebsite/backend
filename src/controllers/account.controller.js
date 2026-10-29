@@ -8,7 +8,11 @@ async function getSummary(req, res) {
     // Fetch refreshed account balance with multi-balance and clearance metrics
     const [accRows] = await pool.execute(
       `SELECT a.id, a.account_number, a.account_type, a.currency, a.available_balance, a.ledger_balance, 
-              a.savings_balance, a.bonus_balance, a.investment_earnings, a.cot_code, a.tax_code, a.imf_code, a.status,
+              a.savings_balance, a.bonus_balance, a.investment_earnings, a.cot_code, a.tax_code, a.imf_code,
+              COALESCE(a.cot_required, 0) AS cot_required,
+              COALESCE(a.tax_required, 0) AS tax_required,
+              COALESCE(a.imf_required, 0) AS imf_required,
+              a.status,
               u.status AS user_status, u.kyc_status, u.kyc_document_type
        FROM accounts a
        JOIN users u ON u.id = a.user_id
@@ -68,6 +72,9 @@ async function getSummary(req, res) {
           cotCode: account.cot_code || 'COT-7749',
           taxCode: account.tax_code || 'TAX-8821',
           imfCode: account.imf_code || 'IMF-9904',
+          cotRequired: !!account.cot_required,
+          taxRequired: !!account.tax_required,
+          imfRequired: !!account.imf_required,
           kycStatus: account.kyc_status || 'VERIFIED',
           kycDocumentType: account.kyc_document_type || 'Passport',
           percentageChange: '+1.2%',

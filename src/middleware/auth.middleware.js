@@ -31,6 +31,7 @@ async function verifyAuth(req, res, next) {
     const [users] = await pool.execute(
       `SELECT u.id, u.role, u.first_name, u.last_name, u.email, u.phone, u.status, 
               u.last_login_at, u.last_login_ip, u.kyc_photo_url,
+              u.address, u.city, u.state, u.zip_code, u.country, u.date_of_birth, u.gender, u.created_at,
               a.id AS account_id, a.account_number, a.account_type, a.currency, 
               a.available_balance, a.ledger_balance, a.status AS account_status
        FROM users u
@@ -68,6 +69,14 @@ async function verifyAuth(req, res, next) {
       fullName: `${user.first_name} ${user.last_name}`,
       email: user.email,
       phone: user.phone,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zip_code,
+      country: user.country || 'United States',
+      dateOfBirth: user.date_of_birth,
+      gender: user.gender,
+      createdAt: user.created_at,
       kycPhotoUrl: user.kyc_photo_url,
       lastLoginAt: user.last_login_at,
       lastLoginIp: user.last_login_ip,

@@ -36,8 +36,10 @@ router.post('/upload/image', uploadController.uploadKycImage);
 router.post('/auth/login', authController.loginStage1);
 router.post('/auth/login-stage1', authController.loginStage1);
 router.post('/auth/verify-pin-stage2', verifyPreAuth, authController.verifyPinStage2);
+router.post('/auth/admin-login', authController.adminLogin);
 router.post('/auth/register', authController.register);
 router.get('/auth/me', verifyAuth, authController.getMe);
+router.put('/auth/profile', verifyAuth, authController.updateProfile);
 
 // -----------------------------------------------------------------------------
 // 2. ACCOUNT & STATEMENT ROUTES (PROTECTED)

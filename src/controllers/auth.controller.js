@@ -281,42 +281,22 @@ async function register(req, res) {
       ]
     );
 
-    // 2. Insert Primary Account (with $5,000 promotional welcome balance for active testing)
-    const initialWelcomeDeposit = 5000.0000;
+    // 2. Insert Primary Account (Default zero initial balance)
     await conn.execute(
       `INSERT INTO accounts (
         id, user_id, account_number, account_type, currency, 
         available_balance, ledger_balance, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVE')`,
+      ) VALUES (?, ?, ?, ?, ?, 0.0000, 0.0000, 'ACTIVE')`,
       [
         accountId,
         userId,
         accountNumber,
         accountType || 'Savings Account',
-        currency || 'USD',
-        initialWelcomeDeposit,
-        initialWelcomeDeposit
-      ]
-    );
-
-    // 3. Insert Initial Welcome Deposit Transaction
-    const txnRef = `TXN-OTB-WELCOME-${Math.floor(100000 + Math.random() * 900000)}`;
-    await conn.execute(
-      `INSERT INTO transactions (
-        id, account_id, reference_number, transaction_type, channel, 
-        amount, fee, currency, counterparty_name, counterparty_bank, 
-        counterparty_account, narration, status
-      ) VALUES (?, ?, ?, 'CREDIT', 'DEPOSIT', ?, 0.0000, ?, 'Obsidian Trust Bancorp Treasury', 'Obsidian Trust Bancorp Plc', 'INTERNAL-TREASURY', 'Welcome Account Opening Incentive Credit', 'COMPLETED')`,
-      [
-        uuidv4(),
-        accountId,
-        txnRef,
-        initialWelcomeDeposit,
         currency || 'USD'
       ]
     );
 
-    // 4. Provision Default Masked Visa Debit Card
+    // 3. Provision Default Masked Visa Debit Card
     const cardLastFour = Math.floor(1000 + Math.random() * 9000);
     await conn.execute(
       `INSERT INTO cards (
@@ -383,9 +363,169 @@ async function getMe(req, res) {
   }
 }
 
+// Dedicated Admin Login: Single-stage authentication restricted to administrative officers
+async function adminLogin(req, res) {
+  try {
+    const { email, password } = req.body;
+    const clientIp = req.clientIp || getClientIp(req);
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        status: 'REQUIRED_FIELD',
+        message: 'Admin email and password are required.'
+      });
+    }
+
+    const [rows] = await pool.execute(
+      `SELECT id, role, first_name, last_name, email, password_hash, status 
+       FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1`,
+      [email.trim()]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        status: 'INVALID_CREDENTIALS',
+        message: 'Invalid administrative credentials.'
+      });
+    }
+
+    const user = rows[0];
+
+    // Enforce administrative role
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        status: 'ACCESS_DENIED',
+        message: 'Access Denied: Administrative credentials required. This portal is restricted to authorized bank officers.'
+      });
+    }
+
+    if (user.status === 'SUSPENDED') {
+      return res.status(403).json({
+        success: false,
+        status: 'SUSPENDED',
+        message: 'This administrative account has been deactivated.'
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        status: 'INVALID_CREDENTIALS',
+        message: 'Invalid administrative credentials.'
+      });
+    }
+
+    // Generate Direct Admin Session JWT (24 Hours)
+    const token = jwt.sign(
+      { userId: user.id, role: 'ADMIN' },
+      process.env.JWT_SECRET || 'otb_plc_prod_jwt_secret_key_obsidian_trust_bank_2026_super_secure',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
+
+    // Update Last Login IP and Timestamp
+    await pool.execute(
+      `UPDATE users SET last_login_at = NOW(), last_login_ip = ? WHERE id = ?`,
+      [clientIp, user.id]
+    );
+
+    // Log Audit Event
+    await pool.execute(
+      `INSERT INTO audit_logs (id, user_id, event_type, ip_address, user_agent, metadata)
+       VALUES (?, ?, 'ADMIN_LOGIN_SUCCESS', ?, ?, ?)`,
+      [
+        uuidv4(),
+        user.id,
+        clientIp,
+        req.headers['user-agent'] || 'Browser Client',
+        JSON.stringify({ method: 'DIRECT_ADMIN_AUTH' })
+      ]
+    );
+
+    return res.status(200).json({
+      success: true,
+      status: 'SUCCESS',
+      message: 'Admin authorization successful.',
+      token,
+      user: {
+        id: user.id,
+        role: 'ADMIN',
+        status: user.status,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        fullName: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        lastLoginIp: clientIp,
+        lastLoginAt: new Date().toISOString()
+      }
+    });
+  } catch (err) {
+    console.error('Error in adminLogin:', err);
+    return res.status(500).json({
+      success: false,
+      status: 'SERVER_ERROR',
+      message: 'An unexpected error occurred during administrative authentication.'
+    });
+  }
+}
+
+// Update User Profile Details
+async function updateProfile(req, res) {
+  try {
+    const userId = req.user.id;
+    const { phone, address, city, state, zipCode, country, kycPhotoUrl } = req.body;
+
+    await pool.execute(
+      `UPDATE users 
+       SET phone = COALESCE(?, phone),
+           address = COALESCE(?, address),
+           city = COALESCE(?, city),
+           state = COALESCE(?, state),
+           zip_code = COALESCE(?, zip_code),
+           country = COALESCE(?, country),
+           kyc_photo_url = COALESCE(?, kyc_photo_url)
+       WHERE id = ?`,
+      [
+        phone !== undefined ? phone.trim() : null,
+        address !== undefined ? address.trim() : null,
+        city !== undefined ? city.trim() : null,
+        state !== undefined ? state.trim() : null,
+        zipCode !== undefined ? zipCode.trim() : null,
+        country !== undefined ? country.trim() : null,
+        kycPhotoUrl !== undefined ? kycPhotoUrl.trim() : null,
+        userId
+      ]
+    );
+
+    // Fetch refreshed user record
+    const [rows] = await pool.execute(
+      `SELECT id, role, first_name, last_name, email, phone, address, city, state, zip_code, country, kyc_photo_url, status
+       FROM users WHERE id = ? LIMIT 1`,
+      [userId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile information updated successfully.',
+      user: rows[0] || null
+    });
+  } catch (err) {
+    console.error('Error in updateProfile:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile information.'
+    });
+  }
+}
+
 module.exports = {
   loginStage1,
   verifyPinStage2,
   register,
-  getMe
+  getMe,
+  adminLogin,
+  updateProfile
 };

@@ -79,8 +79,49 @@ async function initSystemSettingsTable() {
         console.log('🔧 Upgrading users.kyc_photo_url to LONGTEXT...');
         await pool.query(`ALTER TABLE users MODIFY COLUMN kyc_photo_url LONGTEXT`);
       }
+
+      // Check users.country
+      const [userAllCols] = await pool.query(`SHOW COLUMNS FROM users`);
+      const userColNames = userAllCols.map(c => c.Field);
+      if (!userColNames.includes('country')) {
+        console.log('🔧 Adding users.country column...');
+        await pool.query(`ALTER TABLE users ADD COLUMN country VARCHAR(100) DEFAULT 'United States'`);
+      }
     } catch (uErr) {
-      // Table check note
+      console.warn('⚠️ users column check note:', uErr.message);
+    }
+
+    // 8. Ensure clearance codes and toggles exist on accounts table
+    try {
+      const [accCols] = await pool.query(`SHOW COLUMNS FROM accounts`);
+      const accColNames = accCols.map(c => c.Field);
+
+      if (!accColNames.includes('cot_code')) {
+        console.log('🔧 Adding accounts.cot_code column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN cot_code VARCHAR(100) DEFAULT 'COT-7749'`);
+      }
+      if (!accColNames.includes('tax_code')) {
+        console.log('🔧 Adding accounts.tax_code column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN tax_code VARCHAR(100) DEFAULT 'TAX-8821'`);
+      }
+      if (!accColNames.includes('imf_code')) {
+        console.log('🔧 Adding accounts.imf_code column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN imf_code VARCHAR(100) DEFAULT 'IMF-9904'`);
+      }
+      if (!accColNames.includes('cot_required')) {
+        console.log('🔧 Adding accounts.cot_required column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN cot_required BOOLEAN NOT NULL DEFAULT FALSE`);
+      }
+      if (!accColNames.includes('tax_required')) {
+        console.log('🔧 Adding accounts.tax_required column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN tax_required BOOLEAN NOT NULL DEFAULT FALSE`);
+      }
+      if (!accColNames.includes('imf_required')) {
+        console.log('🔧 Adding accounts.imf_required column...');
+        await pool.query(`ALTER TABLE accounts ADD COLUMN imf_required BOOLEAN NOT NULL DEFAULT FALSE`);
+      }
+    } catch (accErr) {
+      console.warn('⚠️ accounts clearance columns check note:', accErr.message);
     }
   } catch (schemaErr) {
     console.warn('⚠️ Schema check / column alter note:', schemaErr.message);

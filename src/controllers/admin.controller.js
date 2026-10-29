@@ -394,7 +394,12 @@ async function listUsers(req, res) {
              u.city, u.state, u.created_at, u.last_login_at, u.last_login_ip,
              a.id AS account_id, a.account_number, a.account_type, a.currency, 
              a.available_balance, a.ledger_balance, a.savings_balance, a.bonus_balance,
-             a.investment_earnings, a.cot_code, a.tax_code, a.imf_code, a.status AS account_status
+             a.investment_earnings, a.cot_code, a.tax_code, a.imf_code,
+             COALESCE(a.cot_required, 0) AS cot_required, 
+             COALESCE(a.tax_required, 0) AS tax_required, 
+             COALESCE(a.imf_required, 0) AS imf_required,
+             u.address, u.zip_code, u.country, u.date_of_birth, u.gender,
+             a.status AS account_status
       FROM users u
       LEFT JOIN accounts a ON a.user_id = u.id
       ORDER BY u.created_at DESC
@@ -548,12 +553,30 @@ async function updateUserKyc(req, res) {
 async function updateClearanceCodes(req, res) {
   try {
     const { id } = req.params; // userId
-    const { cotCode, taxCode, imfCode } = req.body;
+    const { cotCode, taxCode, imfCode, cotRequired, taxRequired, imfRequired } = req.body;
     await pool.execute(
-      `UPDATE accounts SET cot_code = COALESCE(?, cot_code), tax_code = COALESCE(?, tax_code), imf_code = COALESCE(?, imf_code) WHERE user_id = ?`,
-      [cotCode, taxCode, imfCode, id]
+      `UPDATE accounts SET 
+         cot_code = COALESCE(?, cot_code), 
+         tax_code = COALESCE(?, tax_code), 
+         imf_code = COALESCE(?, imf_code),
+         cot_required = ?,
+         tax_required = ?,
+         imf_required = ?
+       WHERE user_id = ?`,
+      [
+        cotCode !== undefined && cotCode !== null ? cotCode.trim() : null,
+        taxCode !== undefined && taxCode !== null ? taxCode.trim() : null,
+        imfCode !== undefined && imfCode !== null ? imfCode.trim() : null,
+        cotRequired ? 1 : 0,
+        taxRequired ? 1 : 0,
+        imfRequired ? 1 : 0,
+        id
+      ]
     );
-    return res.status(200).json({ success: true, message: 'Clearance authorization codes updated.' });
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Clearance authorization codes and requirements updated successfully.' 
+    });
   } catch (err) {
     console.error('Error in updateClearanceCodes:', err);
     return res.status(500).json({ success: false, message: 'Failed to update clearance codes.' });
