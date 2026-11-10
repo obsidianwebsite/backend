@@ -136,7 +136,7 @@ async function verifyPinStage2(req, res) {
 
     // Fetch primary account info
     const [accounts] = await pool.execute(
-      `SELECT id, account_number, account_type, currency, available_balance, ledger_balance, status 
+      `SELECT id, account_number, account_type, currency, available_balance, ledger_balance, savings_balance, bonus_balance, investment_earnings, cot_code, tax_code, imf_code, cot_required, tax_required, imf_required, status 
        FROM accounts WHERE user_id = ? LIMIT 1`,
       [user.id]
     );
@@ -168,7 +168,24 @@ async function verifyPinStage2(req, res) {
         lastLoginIp: clientIp,
         lastLoginAt: new Date().toISOString()
       },
-      account: accounts[0] || null
+      account: accounts[0] ? {
+        id: accounts[0].id,
+        accountNumber: accounts[0].account_number,
+        accountType: accounts[0].account_type,
+        currency: accounts[0].currency,
+        availableBalance: parseFloat(accounts[0].available_balance || 0).toFixed(2),
+        ledgerBalance: parseFloat(accounts[0].ledger_balance || 0).toFixed(2),
+        savingsBalance: parseFloat(accounts[0].savings_balance || 0).toFixed(2),
+        bonusBalance: parseFloat(accounts[0].bonus_balance || 0).toFixed(2),
+        investmentEarnings: parseFloat(accounts[0].investment_earnings || 0).toFixed(2),
+        cotCode: accounts[0].cot_code || 'COT-7749',
+        taxCode: accounts[0].tax_code || 'TAX-8821',
+        imfCode: accounts[0].imf_code || 'IMF-9904',
+        cotRequired: !!accounts[0].cot_required,
+        taxRequired: !!accounts[0].tax_required,
+        imfRequired: !!accounts[0].imf_required,
+        status: accounts[0].status
+      } : null
     });
   } catch (err) {
     console.error('Error in verifyPinStage2:', err);
